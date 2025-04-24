@@ -1,0 +1,72 @@
+📘 Dokumentasi Booking System – Anak Kos
+
+🔑 Peran Pengguna (User Roles)
+Aplikasi ini memiliki dua jenis peran utama:
+
+1. Seeker (Pencari kos)
+- Pengguna yang mencari tempat kos.
+- Bisa membuat dan mengatur booking.
+
+2. Owner (Pemilik kos)
+- Pengguna yang memiliki dan mengelola tempat kos.
+- Bisa melihat dan menerima/menolak booking dari seeker.
+
+📌 Siapa yang Bisa Melakukan Apa?
+Aksi                                Seeker   Owner
+Membuat booking                      ✅        ❌
+Melihat daftar booking miliknya     ✅        ❌
+Mengubah tanggal booking            ✅        ❌
+Membatalkan booking                 ✅        ❌
+Melihat booking ke kos miliknya     ❌        ✅
+Menerima/menolak booking            ❌        ✅
+
+📥 1. Membuat Booking (Hanya untuk Seeker)
+- Endpoint: POST /api/bookings
+- Siapa yang bisa?: Hanya pengguna dengan role seeker
+- Kegunaan: Booking tempat kos berdasarkan tanggal mulai dan akhir.
+- Contoh Body JSON:
+{
+  "boarding_house_id": "uuid-kos",
+  "start_date": "2025-05-01",
+  "end_date": "2025-05-31"
+}
+
+📄 2. Melihat Daftar Booking Sendiri (Seeker)
+- Endpoint: GET /api/bookings
+- Kegunaan: Menampilkan semua booking milik pengguna yang sedang login.
+
+🔍 3. Melihat Detail Booking (Seeker)
+- Endpoint: GET /api/bookings/:id
+- Kegunaan: Menampilkan detail booking berdasarkan ID, hanya milik sendiri.
+
+✏️ 4. Mengubah Booking (Seeker)
+- Endpoint: PUT /api/bookings/:id
+- Kegunaan: Mengubah tanggal booking, hanya bisa dilakukan jika status booking masih pending.
+
+❌ 5. Membatalkan Booking (Seeker)
+- Endpoint: DELETE /api/bookings/:id
+- Kegunaan: Menghapus/cancel booking sebelum disetujui oleh owner.
+
+✔️❌ 6. Menerima / Menolak Booking (Owner)
+- Endpoint: PUT /api/bookings/:id/status
+- Siapa yang bisa?: Hanya pemilik dari kos yang dipesan (role: owner)
+- Kegunaan: Owner bisa menerima atau menolak booking dari seeker.
+- Contoh Body JSON:
+{
+  "status": "accepted"
+}
+Nilai status yang bisa digunakan:
+- pending (default saat dibuat)
+- accepted
+- rejected
+
+🛑 Validasi Tambahan
+- Tanggal akhir (end_date) harus setelah tanggal mulai (start_date).
+- Booking hanya bisa diubah atau dihapus jika masih dalam status pending.
+- Hanya pemilik kos tertentu yang bisa mengubah status booking di kos miliknya.
+
+🤝 Alur Booking secara Umum
+1. Seeker login lalu membuat booking.
+2. Owner login, melihat daftar booking masuk ke kosnya.
+3. Owner bisa menerima (accepted) atau menolak (rejected) booking tersebut.
+4. Jika diterima, booking bisa dijadikan acuan untuk pembayaran atau reservasi.

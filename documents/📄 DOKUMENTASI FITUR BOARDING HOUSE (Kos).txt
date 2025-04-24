@@ -1,0 +1,77 @@
+📄 DOKUMENTASI FITUR BOARDING HOUSE (Kos)
+
+Fitur ini memungkinkan pemilik kos (owner) untuk mengelola data kos milik mereka, serta memungkinkan pencari kos (seeker) untuk mencari kos yang tersedia.
+
+=======================================
+🔐 AKSES BERDASARKAN ROLE
+=======================================
+1. ROLE OWNER (Pemilik Kos):
+   - Bisa membuat kos (Create)
+   - Bisa melihat kos milik sendiri (Read)
+   - Bisa mengedit kos milik sendiri (Update)
+   - Bisa menghapus kos milik sendiri (Delete)
+   - Tidak bisa melihat kos milik orang lain
+
+2. ROLE SEEKER (Pencari Kos):
+   - Bisa melihat semua kos yang tersedia untuk disewa (Read)
+   - Tidak bisa membuat, mengedit, atau menghapus kos
+
+=======================================
+📦 FITUR PENCARIAN KOS (SEEKER)
+=======================================
+Pencari kos (seeker) bisa mencari kos menggunakan endpoint:
+GET /api/boarding-houses
+
+Dengan parameter opsional sebagai filter pencarian:
+- page: halaman ke berapa (contoh: 1, 2, 3)
+- limit: jumlah item per halaman
+- search: kata kunci berdasarkan nama/deskripsi kos (contoh: "kos nyaman")
+- city: nama kota (contoh: "Jakarta")
+- gender_allowed: jenis kelamin yang diperbolehkan (contoh: "male", "female", "mixed")
+- min_price: harga minimum
+- max_price: harga maksimum
+
+Contoh URL:
+/api/boarding-houses?page=1&limit=10&search=nyaman&city=Bandung&gender_allowed=mixed&min_price=1000000
+
+Pencari hanya bisa melihat kos:
+✅ Yang memiliki kamar tersedia (belum penuh berdasarkan tanggal hari ini)
+✅ Yang cocok dengan kriteria pencarian
+
+=======================================
+📋 FITUR UNTUK OWNER
+=======================================
+OWNER bisa mengakses endpoint berikut:
+
+✅ Melihat daftar kos miliknya:
+   - GET /api/boarding-houses
+
+✅ Membuat kos baru:
+   - POST /api/boarding-houses
+   - Body JSON: { name, description, address, city, price_per_month, room_available, gender_allowed, facility_ids }
+
+✅ Mengedit kos milik sendiri:
+   - PUT /api/boarding-houses/:id
+
+✅ Menghapus kos milik sendiri:
+   - DELETE /api/boarding-houses/:id
+
+=======================================
+📌 DETAIL INFORMASI KOS YANG DITAMPILKAN
+=======================================
+Untuk setiap kos yang ditampilkan (baik untuk seeker maupun owner), informasi yang tersedia mencakup:
+- Nama kos
+- Deskripsi
+- Alamat dan Kota
+- Harga per bulan
+- Jumlah kamar tersedia
+- Gender yang diperbolehkan
+- Daftar fasilitas
+- Informasi pemilik kos (hanya untuk owner melihat miliknya)
+
+=======================================
+❌ PEMBATASAN
+=======================================
+- Owner hanya bisa mengakses data kos yang mereka miliki
+- Seeker tidak bisa melihat kos yang sudah penuh
+- Semua perubahan pada data kos harus dilakukan oleh pemilik aslinya (Owner)

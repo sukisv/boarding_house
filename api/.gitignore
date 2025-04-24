@@ -1,0 +1,24 @@
+# Build output
+/main
+
+# Vendor directory
+/vendor/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# .env file (jika ada)
+.env
+
+# IDE/Editor settings
+.vscode/
+.idea/
+
+# Air tool
+.air.toml
+.air/
+
+# Go specific
+*.exe
+*.test
