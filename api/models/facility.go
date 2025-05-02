@@ -23,3 +23,14 @@ func (item *Facility) BeforeCreate(tx *gorm.DB) (err error) {
 	}
 	return
 }
+
+// FacilityRequest represents the request payload for creating or updating a Facility
+type FacilityRequest struct {
+	Name string `json:"name" binding:"required"`
+}
+
+// FacilityResponse represents the response payload for a Facility
+type FacilityResponse struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}

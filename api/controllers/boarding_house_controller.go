@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 	"github.com/labstack/echo/v4"
 )
 
@@ -115,12 +116,21 @@ func GetBoardingHouses(c echo.Context) error {
 		})
 	}
 
+	var responseHouses []models.BoardingHouseResponse
+	if err := copier.Copy(&responseHouses, &houses); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed to process response data",
+			"status":  "error",
+			"data":    err.Error(),
+		})
+	}
+
 	totalPages := int((total + int64(limit) - 1) / int64(limit))
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Successfully retrieved boarding houses",
 		"status":  "success",
-		"data":    houses,
+		"data":    responseHouses,
 		"meta": echo.Map{
 			"page":        page,
 			"limit":       limit,
@@ -151,67 +161,63 @@ func GetBoardingHouseByID(c echo.Context) error {
 }
 
 func CreateBoardingHouse(c echo.Context) error {
-	var p BoardingHousePayload
-	if err := c.Bind(&p); err != nil {
+	// Bind request payload
+	var request models.BoardingHouseRequest
+	if err := c.Bind(&request); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "Gagal membaca request",
+			"message": "Failed to read request",
 			"status":  "error",
 			"data":    err.Error(),
 		})
 	}
 
-	house := models.BoardingHouse{
-		OwnerID:       p.OwnerID,
-		Name:          p.Name,
-		Description:   p.Description,
-		Address:       p.Address,
-		City:          p.City,
-		PricePerMonth: p.PricePerMonth,
-		RoomAvailable: p.RoomAvailable,
-		GenderAllowed: p.GenderAllowed,
+	// Copy request data to BoardingHouse model
+	house := models.BoardingHouse{}
+	if err := copier.Copy(&house, &request); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed to process request data",
+			"status":  "error",
+			"data":    err.Error(),
+		})
 	}
 
+	// Save BoardingHouse to database
 	if err := config.DB.Create(&house).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "Gagal membuat boarding house",
+			"message": "Failed to create boarding house",
 			"status":  "error",
 			"data":    err.Error(),
 		})
 	}
 
-	for _, fid := range p.FacilityIDs {
-		pivot := models.BoardingHouseFacility{
-			BoardingHouseID: house.ID,
-			FacilityID:      fid,
-		}
-		if err := config.DB.Create(&pivot).Error; err != nil {
-			return c.JSON(http.StatusInternalServerError, echo.Map{
-				"message": "Gagal menambahkan fasilitas",
-				"status":  "error",
-				"data":    err.Error(),
-			})
-		}
+	// Copy BoardingHouse data to response struct
+	response := models.BoardingHouseResponse{}
+	if err := copier.Copy(&response, &house); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed to process response data",
+			"status":  "error",
+			"data":    err.Error(),
+		})
 	}
 
-	if err := config.DB.
-		Preload("Facilities").
-		First(&house, "id = ?", house.ID).Error; err != nil {
-	}
-
+	// Return response
 	return c.JSON(http.StatusCreated, echo.Map{
-		"message": "Boarding house dibuat berhasil",
+		"message": "Boarding house created successfully",
 		"status":  "success",
-		"data":    house,
+		"data":    response,
 	})
 }
 
 func UpdateBoardingHouse(c echo.Context) error {
+	// Get authenticated user
 	user := c.Get("user").(context.AuthenticatedUser)
 	userID := user.ID.String()
 
+	// Get boarding house ID from URL
 	id := c.Param("id")
 	var house models.BoardingHouse
 
+	// Find boarding house by ID
 	if err := config.DB.Preload("Facilities").
 		First(&house, "id = ?", id).Error; err != nil {
 		return c.JSON(http.StatusNotFound, echo.Map{
@@ -221,6 +227,7 @@ func UpdateBoardingHouse(c echo.Context) error {
 		})
 	}
 
+	// Check if the user is the owner
 	if house.OwnerID.String() != userID {
 		return c.JSON(http.StatusForbidden, echo.Map{
 			"message": "Anda tidak memiliki hak untuk memperbarui boarding house ini",
@@ -228,6 +235,7 @@ func UpdateBoardingHouse(c echo.Context) error {
 		})
 	}
 
+	// Bind request payload
 	var p BoardingHousePayload
 	if err := c.Bind(&p); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
@@ -237,6 +245,7 @@ func UpdateBoardingHouse(c echo.Context) error {
 		})
 	}
 
+	// Update boarding house fields
 	house.Name = p.Name
 	house.Description = p.Description
 	house.Address = p.Address
@@ -245,6 +254,7 @@ func UpdateBoardingHouse(c echo.Context) error {
 	house.RoomAvailable = p.RoomAvailable
 	house.GenderAllowed = p.GenderAllowed
 
+	// Save updated boarding house to database
 	if err := config.DB.Save(&house).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Gagal memperbarui boarding house",
@@ -253,6 +263,7 @@ func UpdateBoardingHouse(c echo.Context) error {
 		})
 	}
 
+	// Update facilities
 	config.DB.Where("boarding_house_id = ?", house.ID).Delete(&models.BoardingHouseFacility{})
 	for _, fid := range p.FacilityIDs {
 		pivot := models.BoardingHouseFacility{
@@ -268,8 +279,10 @@ func UpdateBoardingHouse(c echo.Context) error {
 		}
 	}
 
+	// Reload boarding house with updated facilities
 	config.DB.Preload("Facilities").First(&house, "id = ?", house.ID)
 
+	// Return response
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Boarding house diperbarui berhasil",
 		"status":  "success",

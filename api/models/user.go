@@ -55,3 +55,23 @@ func (item *User) BeforeUpdate(tx *gorm.DB) (err error) {
 
 	return
 }
+
+// UserRequest represents the request payload for creating or updating a User
+type UserRequest struct {
+	Name        string `json:"name" binding:"required"`
+	Email       string `json:"email" binding:"required,email"`
+	Password    string `json:"password" binding:"required,min=8"`
+	Role        string `json:"role" binding:"required,oneof=seeker owner"`
+	PhoneNumber string `json:"phone_number" binding:"omitempty"`
+}
+
+// UserResponse represents the response payload for a User
+type UserResponse struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Email       string    `json:"email"`
+	Role        string    `json:"role"`
+	PhoneNumber string    `json:"phone_number"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}

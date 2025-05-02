@@ -26,3 +26,16 @@ func (item *BoardingHouseImage) BeforeCreate(tx *gorm.DB) (err error) {
 	}
 	return
 }
+
+type BoardingHouseImageResponse struct {
+	ID              string    `json:"id"`
+	BoardingHouseID string    `json:"boarding_house_id"`
+	ImageURL        string    `json:"image_url"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
+}
+
+type BoardingHouseImageRequest struct {
+	BoardingHouseID string `json:"boarding_house_id" binding:"required,uuid"`
+	ImageURL        string `json:"image_url" binding:"required,url"`
+}

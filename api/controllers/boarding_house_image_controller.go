@@ -12,6 +12,7 @@ import (
 	"anak_kos/models"
 
 	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 	"github.com/labstack/echo/v4"
 )
 
@@ -48,7 +49,7 @@ func UploadBoardingHouseImages(c echo.Context) error {
 		os.Mkdir(uploadDir, os.ModePerm)
 	}
 
-	var uploadedImages []models.BoardingHouseImage
+	var uploadedImages []models.BoardingHouseImageResponse
 
 	for _, file := range files {
 		src, err := file.Open()
@@ -77,7 +78,10 @@ func UploadBoardingHouseImages(c echo.Context) error {
 		}
 
 		if err := config.DB.Create(&image).Error; err == nil {
-			uploadedImages = append(uploadedImages, image)
+			var imageResponse models.BoardingHouseImageResponse
+			if err := copier.Copy(&imageResponse, &image); err == nil {
+				uploadedImages = append(uploadedImages, imageResponse)
+			}
 		}
 	}
 
@@ -99,9 +103,14 @@ func GetImagesByBoardingHouseID(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Gagal mengambil gambar"})
 	}
 
+	var responseImages []models.BoardingHouseImageResponse
+	if err := copier.Copy(&responseImages, &images); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Gagal memproses data gambar"})
+	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Daftar gambar",
-		"data":    images,
+		"data":    responseImages,
 	})
 }
 

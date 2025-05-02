@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	golang.org/x/time v0.8.0 // indirect
 )

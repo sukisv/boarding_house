@@ -25,3 +25,20 @@ func (f *Favorite) BeforeCreate(tx *gorm.DB) (err error) {
 	}
 	return
 }
+
+// FavoriteRequest represents the request payload for creating or updating a Favorite
+type FavoriteRequest struct {
+	UserID          string `json:"user_id" binding:"required,uuid"`
+	BoardingHouseID string `json:"boarding_house_id" binding:"required,uuid"`
+}
+
+// FavoriteResponse represents the response payload for a Favorite
+type FavoriteResponse struct {
+	ID              string                 `json:"id"`
+	UserID          string                 `json:"user_id"`
+	BoardingHouseID string                 `json:"boarding_house_id"`
+	User            *UserResponse          `json:"user,omitempty"`
+	BoardingHouse   *BoardingHouseResponse `json:"boarding_house,omitempty"`
+	CreatedAt       time.Time              `json:"created_at"`
+	UpdatedAt       time.Time              `json:"updated_at"`
+}

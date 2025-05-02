@@ -33,19 +33,23 @@ func InitRoutes(e *echo.Echo) {
 
 		// Users Routes
 		api.GET("/users/me", controllers.GetMe)
-		// api.GET("/users", controllers.GetUsers)
-		// api.GET("/users/:id", controllers.GetUserByID)
-		// api.POST("/users", controllers.CreateUser)
-		// api.PUT("/users/:id", controllers.UpdateUser)
-		// api.DELETE("/users/:id", controllers.DeleteUser)
+		api.GET("/users", controllers.GetUsers)
+		api.GET("/users/:id", controllers.GetUserByID)
+		api.POST("/users", controllers.CreateUser)
+		api.PUT("/users/:id", controllers.UpdateUser)
+		api.DELETE("/users/:id", controllers.DeleteUser)
 
+		// Boarding House Images Routes
 		api.POST("/boarding-house-images", controllers.UploadBoardingHouseImages) // multiple upload
-		api.PUT("/boarding-house-images/:boarding_house_id", controllers.DeleteBoardingHouseImage)
+		api.GET("/boarding-house-images/:id", controllers.GetImagesByBoardingHouseID)
 		api.DELETE("/boarding-house-images/:id", controllers.DeleteBoardingHouseImage)
 
+		// Bookings Routes
 		api.POST("/bookings", controllers.CreateBooking)
 		api.GET("/bookings", controllers.GetBookings)
 		api.GET("/bookings/:id", controllers.GetBookingByID)
 		api.PUT("/bookings/:id", controllers.UpdateBooking)
+		api.DELETE("/bookings/:id", controllers.DeleteBooking)
+		api.PUT("/bookings/:id/status", controllers.UpdateBookingStatus)
 	}
 }
