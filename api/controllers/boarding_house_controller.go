@@ -167,6 +167,7 @@ func CreateBoardingHouse(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "Failed to read request",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}

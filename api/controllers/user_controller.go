@@ -16,6 +16,7 @@ func GetMe(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"message": "Unauthorized",
 			"status":  "error",
+			"success": false,
 			"data":    nil,
 		})
 	}
@@ -23,6 +24,7 @@ func GetMe(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "User profile fetched successfully",
 		"status":  "success",
+		"success": true,
 		"data":    user,
 	})
 }
@@ -33,6 +35,7 @@ func GetUsers(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to retrieve users",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -42,6 +45,7 @@ func GetUsers(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process response data",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -49,6 +53,7 @@ func GetUsers(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Successfully retrieved users",
 		"status":  "success",
+		"success": true,
 		"data":    responseUsers,
 	})
 }
@@ -61,6 +66,7 @@ func GetUserByID(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, echo.Map{
 			"message": "User not found",
 			"status":  "error",
+			"success": false,
 			"data":    nil,
 		})
 	}
@@ -70,6 +76,7 @@ func GetUserByID(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process response data",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -77,6 +84,7 @@ func GetUserByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Successfully retrieved user",
 		"status":  "success",
+		"success": true,
 		"data":    responseUser,
 	})
 }
@@ -88,6 +96,7 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "Failed to parse request body",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -98,6 +107,7 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process request data",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -108,6 +118,7 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to create user",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -118,6 +129,7 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process response data",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -125,6 +137,7 @@ func CreateUser(c echo.Context) error {
 	return c.JSON(http.StatusCreated, echo.Map{
 		"message": "User created successfully",
 		"status":  "success",
+		"success": true,
 		"data":    responseUser,
 	})
 }
@@ -138,6 +151,7 @@ func UpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, echo.Map{
 			"message": "User not found",
 			"status":  "error",
+			"success": false,
 			"data":    nil,
 		})
 	}
@@ -148,6 +162,7 @@ func UpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "Failed to parse request body",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -157,6 +172,7 @@ func UpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process request data",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -166,6 +182,7 @@ func UpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to update user",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -176,6 +193,7 @@ func UpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process response data",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -183,6 +201,7 @@ func UpdateUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "User updated successfully",
 		"status":  "success",
+		"success": true,
 		"data":    responseUser,
 	})
 }
@@ -195,6 +214,7 @@ func DeleteUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to delete user",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -202,6 +222,7 @@ func DeleteUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "User deleted successfully",
 		"status":  "success",
+		"success": true,
 		"data":    nil,
 	})
 }

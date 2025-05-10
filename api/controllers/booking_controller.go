@@ -21,26 +21,49 @@ func CreateBooking(c echo.Context) error {
 
 	// Check if user is a seeker
 	if userRole != string(models.RoleSeeker) {
-		return c.JSON(http.StatusForbidden, echo.Map{"message": "Only seekers can create bookings", "status": "error"})
+		return c.JSON(http.StatusForbidden, echo.Map{
+			"message": "Only seekers can create bookings",
+			"status":  "error",
+			"success": false,
+		})
 	}
 
 	// Bind request payload
 	var payload models.BookingRequest
 	if err := c.Bind(&payload); err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"message": "Invalid request body", "status": "error", "data": err.Error()})
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "Invalid request body",
+			"status":  "error",
+			"success": false,
+			"data":    err.Error(),
+		})
 	}
 
 	// Validate and parse dates
 	start, err := time.Parse("2006-01-02", payload.StartDate.Format("2006-01-02"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"message": "Invalid start_date format", "status": "error", "data": err.Error()})
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "Invalid start_date format",
+			"status":  "error",
+			"success": false,
+			"data":    err.Error(),
+		})
 	}
 	end, err := time.Parse("2006-01-02", payload.EndDate.Format("2006-01-02"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"message": "Invalid end_date format", "status": "error", "data": err.Error()})
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "Invalid end_date format",
+			"status":  "error",
+			"success": false,
+			"data":    err.Error(),
+		})
 	}
 	if end.Before(start) {
-		return c.JSON(http.StatusBadRequest, echo.Map{"message": "end_date must be after start_date", "status": "error"})
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "end_date must be after start_date",
+			"status":  "error",
+			"success": false,
+		})
 	}
 
 	// Create booking
@@ -54,17 +77,32 @@ func CreateBooking(c echo.Context) error {
 
 	// Save booking to database
 	if err := config.DB.Create(&booking).Error; err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{"message": "Failed to create booking", "status": "error", "data": err.Error()})
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed to create booking",
+			"status":  "error",
+			"success": false,
+			"data":    err.Error(),
+		})
 	}
 
 	// Copy booking data to response struct
 	response := models.BookingResponse{}
 	if err := copier.Copy(&response, &booking); err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{"message": "Failed to process response data", "status": "error", "data": err.Error()})
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed to process response data",
+			"status":  "error",
+			"success": false,
+			"data":    err.Error(),
+		})
 	}
 
 	// Return response
-	return c.JSON(http.StatusCreated, echo.Map{"message": "Booking created successfully", "status": "success", "data": response})
+	return c.JSON(http.StatusCreated, echo.Map{
+		"message": "Booking created successfully",
+		"status":  "success",
+		"success": true,
+		"data":    response,
+	})
 }
 
 func GetBookings(c echo.Context) error {
@@ -79,6 +117,7 @@ func GetBookings(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to retrieve bookings",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -88,6 +127,7 @@ func GetBookings(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process response data",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -95,6 +135,7 @@ func GetBookings(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Successfully retrieved bookings",
 		"status":  "success",
+		"success": true,
 		"data":    responseBookings,
 	})
 }
@@ -112,6 +153,7 @@ func GetBookingByID(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, echo.Map{
 			"message": "Booking not found",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -120,12 +162,14 @@ func GetBookingByID(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process response data",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Successfully retrieved booking",
 		"status":  "success",
+		"success": true,
 		"data":    response,
 	})
 }
@@ -210,6 +254,7 @@ func UpdateBookingStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "Invalid request format",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -220,6 +265,7 @@ func UpdateBookingStatus(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, echo.Map{
 			"message": "Booking not found",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -229,6 +275,7 @@ func UpdateBookingStatus(c echo.Context) error {
 		return c.JSON(http.StatusForbidden, echo.Map{
 			"message": "You are not authorized to update this booking",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -237,6 +284,7 @@ func UpdateBookingStatus(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to update booking status",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -245,12 +293,14 @@ func UpdateBookingStatus(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process response data",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Booking status updated",
 		"status":  "success",
+		"success": true,
 		"data":    response,
 	})
 }

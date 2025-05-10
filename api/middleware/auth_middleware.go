@@ -5,30 +5,27 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
 
 func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		sessionCookie, err := c.Cookie("session_id")
-		if err != nil || sessionCookie.Value == "" {
+		authHeader := c.Request().Header.Get("Authorization")
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Unauthorized"})
 		}
 
-		userCookie, err := c.Cookie("user_info")
-		if err != nil || userCookie.Value == "" {
-			return c.JSON(http.StatusUnauthorized, echo.Map{"error": "User information not found"})
-		}
-
-		decodedUserInfo, err := base64.StdEncoding.DecodeString(userCookie.Value)
+		token := strings.TrimPrefix(authHeader, "Bearer ")
+		decodedUserInfo, err := base64.StdEncoding.DecodeString(token)
 		if err != nil {
-			return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Failed to decode user information"})
+			return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Failed to decode token"})
 		}
 
 		var user context.AuthenticatedUser
 		if err := json.Unmarshal(decodedUserInfo, &user); err != nil {
-			return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Failed to parse user information"})
+			return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Failed to parse token"})
 		}
 
 		// Inject ke context

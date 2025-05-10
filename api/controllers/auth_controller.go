@@ -6,9 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -21,6 +19,7 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "Invalid request payload",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -31,6 +30,7 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"message": "Invalid email or password",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -39,57 +39,37 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"message": "Invalid email or password",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
-	// Generate session ID
-	sessionID := uuid.New().String()
-
-	// Copy user data to response struct
+	// Generate token
 	userInfo := models.UserResponse{}
 	if err := copier.Copy(&userInfo, &user); err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process user data",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
-	// Serialize user info
 	userInfoJSON, err := json.Marshal(userInfo)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to serialize user info",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
-	// Encode user info to base64
-	encodedUserInfo := base64.StdEncoding.EncodeToString(userInfoJSON)
+	token := base64.StdEncoding.EncodeToString(userInfoJSON)
 
-	// Set cookies
-	c.SetCookie(&http.Cookie{
-		Name:     "session_id",
-		Value:    sessionID,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   false,
-		Expires:  time.Now().Add(30 * 24 * time.Hour),
-	})
-
-	c.SetCookie(&http.Cookie{
-		Name:     "user_info",
-		Value:    encodedUserInfo,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   false,
-		Expires:  time.Now().Add(30 * 24 * time.Hour),
-	})
-
-	// Return response
+	// Return response with token
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Login successful",
 		"status":  "success",
-		"user":    userInfo,
+		"success": true,
+		"token":   token,
 	})
 }
 
@@ -100,6 +80,7 @@ func Register(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "Invalid request body",
 			"status":  "error",
+			"success": false,
 			"data":    err.Error(),
 		})
 	}
@@ -110,6 +91,7 @@ func Register(c echo.Context) error {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"message": "User already exists",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -119,6 +101,7 @@ func Register(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process registration data",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -127,6 +110,7 @@ func Register(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to register user",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -136,6 +120,7 @@ func Register(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process response data",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -143,33 +128,16 @@ func Register(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Registration successful",
 		"status":  "success",
+		"success": true,
 		"user":    registerResponse,
 	})
 }
 
 func Logout(c echo.Context) error {
-	// Clear cookies
-	c.SetCookie(&http.Cookie{
-		Name:     "session_id",
-		Value:    "",
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   false,
-		MaxAge:   -1,
-	})
-
-	c.SetCookie(&http.Cookie{
-		Name:     "user_info",
-		Value:    "",
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   false,
-		MaxAge:   -1,
-	})
-
-	// Return response
+	// No cookies to clear, just return success
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Logout successful",
 		"status":  "success",
+		"success": true,
 	})
 }

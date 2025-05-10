@@ -23,25 +23,40 @@ func UploadBoardingHouseImages(c echo.Context) error {
 	houseIDStr := c.FormValue("boarding_house_id")
 	houseID, err := uuid.Parse(houseIDStr)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "ID kos tidak valid"})
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error":   "ID kos tidak valid",
+			"success": false,
+		})
 	}
 
 	var house models.BoardingHouse
 	if err := config.DB.First(&house, "id = ?", houseID).Error; err != nil {
-		return c.JSON(http.StatusNotFound, echo.Map{"error": "Boarding house tidak ditemukan"})
+		return c.JSON(http.StatusNotFound, echo.Map{
+			"error":   "Boarding house tidak ditemukan",
+			"success": false,
+		})
 	}
 	if house.OwnerID != userID {
-		return c.JSON(http.StatusForbidden, echo.Map{"error": "Kamu bukan pemilik kos ini"})
+		return c.JSON(http.StatusForbidden, echo.Map{
+			"error":   "Kamu bukan pemilik kos ini",
+			"success": false,
+		})
 	}
 
 	form, err := c.MultipartForm()
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Gagal membaca form data"})
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error":   "Gagal membaca form data",
+			"success": false,
+		})
 	}
 	files := form.File["images"]
 
 	if len(files) == 0 {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Tidak ada gambar yang dikirim"})
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error":   "Tidak ada gambar yang dikirim",
+			"success": false,
+		})
 	}
 
 	uploadDir := "uploads"
@@ -86,12 +101,16 @@ func UploadBoardingHouseImages(c echo.Context) error {
 	}
 
 	if len(uploadedImages) == 0 {
-		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Tidak ada gambar yang berhasil diupload"})
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error":   "Tidak ada gambar yang berhasil diupload",
+			"success": false,
+		})
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Gambar berhasil diupload",
 		"data":    uploadedImages,
+		"success": true,
 	})
 }
 
@@ -111,6 +130,8 @@ func GetImagesByBoardingHouseID(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Daftar gambar",
 		"data":    responseImages,
+		"status":  "success",
+		"success": true,
 	})
 }
 
@@ -125,6 +146,7 @@ func DeleteBoardingHouseImage(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, echo.Map{
 			"message": "Gambar tidak ditemukan",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -133,6 +155,7 @@ func DeleteBoardingHouseImage(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, echo.Map{
 			"message": "Boarding house tidak ditemukan",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -140,6 +163,7 @@ func DeleteBoardingHouseImage(c echo.Context) error {
 		return c.JSON(http.StatusForbidden, echo.Map{
 			"message": "Kamu tidak punya akses untuk menghapus gambar ini",
 			"status":  "error",
+			"success": false,
 		})
 	}
 
@@ -150,6 +174,7 @@ func DeleteBoardingHouseImage(c echo.Context) error {
 				"message": "Gagal menghapus file gambar",
 				"status":  "error",
 				"data":    err.Error(),
+				"success": false,
 			})
 		}
 	}
@@ -159,11 +184,13 @@ func DeleteBoardingHouseImage(c echo.Context) error {
 			"message": "Gagal menghapus gambar",
 			"status":  "error",
 			"data":    err.Error(),
+			"succes":  false,
 		})
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Gambar berhasil dihapus",
 		"status":  "success",
+		"success": true,
 	})
 }
