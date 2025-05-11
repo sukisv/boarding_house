@@ -69,7 +69,10 @@ func Login(c echo.Context) error {
 		"message": "Login successful",
 		"status":  "success",
 		"success": true,
-		"token":   token,
+		"data": echo.Map{
+			"user":  userInfo,
+			"token": token,
+		},
 	})
 }
 

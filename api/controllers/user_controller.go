@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"anak_kos/config"
+	"anak_kos/context"
 	"anak_kos/models"
 	"net/http"
 
@@ -11,13 +12,25 @@ import (
 )
 
 func GetMe(c echo.Context) error {
-	user, ok := c.Get("user").(models.UserResponse)
-	if !ok {
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"message": "Unauthorized",
+	user := c.Get("user").(context.AuthenticatedUser)
+
+	var userModel models.User
+	if err := config.DB.First(&userModel, "id = ?", user.ID).Error; err != nil {
+		return c.JSON(http.StatusNotFound, echo.Map{
+			"message": "User not found",
 			"status":  "error",
 			"success": false,
 			"data":    nil,
+		})
+	}
+
+	var userResponse models.UserResponse
+	if err := copier.Copy(&userResponse, &userModel); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed to process user data",
+			"status":  "error",
+			"success": false,
+			"data":    err.Error(),
 		})
 	}
 
@@ -25,7 +38,7 @@ func GetMe(c echo.Context) error {
 		"message": "User profile fetched successfully",
 		"status":  "success",
 		"success": true,
-		"data":    user,
+		"data":    userResponse,
 	})
 }
 
