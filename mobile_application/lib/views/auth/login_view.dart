@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_application/constants/routes.dart';
-import 'package:mobile_application/views/home/home_view.dart';
 import '../../components/custom_button.dart';
 import '../../components/custom_input.dart';
 import '../../viewmodels/auth/login_viewmodel.dart';
 
 class LoginView extends StatelessWidget {
   final LoginViewModel viewModel = LoginViewModel();
+
+  LoginView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class LoginView extends StatelessWidget {
                   passwordController.text,
                 );
                 if (success) {
-                  Navigator.pushReplacementNamed(context, Routes.main);
+                  Navigator.pushReplacementNamed(context, Routes.home);
                 }
               },
             ),

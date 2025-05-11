@@ -3,10 +3,13 @@ package config
 import (
 	"anak_kos/models"
 	"fmt"
+	"log"
 	"os"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -21,7 +24,17 @@ func SetupDatabase() {
 		os.Getenv("DB_NAME"),
 	)
 
-	database, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	database, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags),
+			logger.Config{
+				SlowThreshold:             time.Second, // Log queries slower than this threshold
+				LogLevel:                  logger.Info, // Log all queries
+				IgnoreRecordNotFoundError: true,
+				Colorful:                  true,
+			},
+		),
+	})
 	if err != nil {
 		panic("Gagal koneksi ke database: " + err.Error())
 	}

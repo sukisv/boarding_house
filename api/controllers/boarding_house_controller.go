@@ -5,6 +5,7 @@ import (
 	"anak_kos/context"
 	"anak_kos/models"
 	"net/http"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -34,11 +35,6 @@ func GetBoardingHouses(c echo.Context) error {
 
 	pageParam := c.QueryParam("page")
 	limitParam := c.QueryParam("limit")
-	search := c.QueryParam("search")
-	city := c.QueryParam("city")
-	gender := c.QueryParam("gender_allowed")
-	minPriceParam := c.QueryParam("min_price")
-	maxPriceParam := c.QueryParam("max_price")
 
 	page, err := strconv.Atoi(pageParam)
 	if err != nil || page < 1 {
@@ -59,22 +55,25 @@ func GetBoardingHouses(c echo.Context) error {
 		db = db.Where("owner_id = ?", userID)
 	}
 
-	if search != "" {
-		like := "%" + search + "%"
-		db = db.Where("name LIKE ? OR description LIKE ?", like, like)
+	// Dynamically generate filters from model fields
+	boardingHouseType := reflect.TypeOf(models.BoardingHouse{})
+	for i := 0; i < boardingHouseType.NumField(); i++ {
+		field := boardingHouseType.Field(i)
+		column := field.Tag.Get("json")
+		if column == "" {
+			continue
+		}
+		if value := c.QueryParam(column); value != "" {
+			db = db.Where(column+" = ?", value)
+		}
 	}
-	if city != "" {
-		db = db.Where("city = ?", city)
-	}
-	if gender != "" {
-		db = db.Where("gender_allowed = ?", gender)
-	}
-	if minPriceParam != "" {
+
+	if minPriceParam := c.QueryParam("min_price"); minPriceParam != "" {
 		if minPrice, err := strconv.ParseFloat(minPriceParam, 64); err == nil {
 			db = db.Where("price_per_month >= ?", minPrice)
 		}
 	}
-	if maxPriceParam != "" {
+	if maxPriceParam := c.QueryParam("max_price"); maxPriceParam != "" {
 		if maxPrice, err := strconv.ParseFloat(maxPriceParam, 64); err == nil {
 			db = db.Where("price_per_month <= ?", maxPrice)
 		}

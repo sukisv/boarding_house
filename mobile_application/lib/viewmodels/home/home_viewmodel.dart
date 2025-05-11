@@ -32,7 +32,6 @@ class HomeViewModel extends ChangeNotifier {
         currentPage++;
       }
     } catch (e) {
-      print('Error fetching boarding houses: $e');
     } finally {
       isLoading = false;
       notifyListeners();
