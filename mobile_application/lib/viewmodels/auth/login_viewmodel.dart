@@ -2,12 +2,18 @@ import 'package:flutter/foundation.dart';
 import '../../services/api_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
+import 'package:mobile_application/models/user.dart';
+import 'user_provider.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final ApiService _apiService = ApiService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  Future<bool> login(String emailOrPhone, String password) async {
+  Future<bool> login(
+    String emailOrPhone,
+    String password,
+    UserProvider userProvider,
+  ) async {
     try {
       final isEmail = RegExp(
         r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
@@ -25,12 +31,13 @@ class LoginViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         final token = responseData['data']['token'];
+        final user = User.fromJson(responseData['data']['user']);
 
         await _storage.write(key: 'auth_token', value: token);
+        userProvider.setUser(user);
         return true;
-      } else {
-        return false;
       }
+      return false;
     } catch (e) {
       print('Login exception: $e');
       return false;

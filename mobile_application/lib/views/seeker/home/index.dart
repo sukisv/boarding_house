@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/models/boarding_house.dart';
 import '../../../viewmodels/seeker/home/index.dart';
 import 'package:provider/provider.dart';
 
@@ -52,7 +53,9 @@ class HomeView extends StatelessWidget {
                       children: [
                         Chip(
                           label: Text(
-                            house.getGenderLabel(house.genderAllowed),
+                            BoardingHouse.getGenderLabelStatic(
+                              house.genderAllowed,
+                            ),
                           ),
                           backgroundColor: Colors.grey[200],
                           shape: RoundedRectangleBorder(
@@ -62,6 +65,18 @@ class HomeView extends StatelessWidget {
                         SizedBox(width: 8),
                         Text('Rp ${house.pricePerMonth}/month'),
                       ],
+                    ),
+                    SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children:
+                          house.facilities.map((facility) {
+                            return Chip(
+                              label: Text(facility.name),
+                              backgroundColor: Colors.blue[50],
+                            );
+                          }).toList(),
                     ),
                   ],
                 ),

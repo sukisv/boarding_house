@@ -6,7 +6,8 @@ type BoardingHouseFacility struct {
 	BoardingHouseID uuid.UUID `gorm:"type:char(36);primaryKey" json:"boarding_house_id"`
 	FacilityID      uuid.UUID `gorm:"type:char(36);primaryKey" json:"facility_id"`
 
-	Facility Facility `gorm:"foreignKey:FacilityID"`
+	Facility      Facility      `gorm:"foreignKey:FacilityID"`
+	BoardingHouse BoardingHouse `gorm:"foreignKey:BoardingHouseID"`
 }
 
 // BoardingHouseFacilityRequest represents the request payload for associating a Facility with a BoardingHouse

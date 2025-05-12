@@ -8,6 +8,7 @@ class BoardingHouse {
   final int pricePerMonth;
   final int roomAvailable;
   final String genderAllowed;
+  final List<Facility> facilities;
 
   BoardingHouse({
     required this.id,
@@ -19,6 +20,7 @@ class BoardingHouse {
     required this.pricePerMonth,
     required this.roomAvailable,
     required this.genderAllowed,
+    required this.facilities,
   });
 
   factory BoardingHouse.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,11 @@ class BoardingHouse {
       pricePerMonth: json['price_per_month'],
       roomAvailable: json['room_available'],
       genderAllowed: json['gender_allowed'],
+      facilities:
+          (json['facilities'] as List<dynamic>?)
+              ?.map((facilityJson) => Facility.fromJson(facilityJson))
+              .toList() ??
+          [],
     );
   }
 
@@ -43,13 +50,15 @@ class BoardingHouse {
     };
     return genderMapping[gender] ?? 'Tidak Diketahui';
   }
+}
 
-  String getGenderLabel(String s) {
-    const genderMapping = {
-      'male': 'Putra',
-      'female': 'Putri',
-      'mixed': 'Campur',
-    };
-    return genderMapping[genderAllowed] ?? 'Tidak Diketahui';
+class Facility {
+  final String id;
+  final String name;
+
+  Facility({required this.id, required this.name});
+
+  factory Facility.fromJson(Map<String, dynamic> json) {
+    return Facility(id: json['id'], name: json['name']);
   }
 }

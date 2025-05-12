@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_application/viewmodels/auth/login_viewmodel.dart';
 import 'package:mobile_application/viewmodels/auth/register_viewmodel.dart';
+import 'package:mobile_application/viewmodels/owner/manage_property/index.dart';
 import 'package:mobile_application/viewmodels/seeker/favorite/index.dart';
 import 'package:mobile_application/viewmodels/seeker/home/index.dart';
 import 'package:mobile_application/viewmodels/seeker/search/index.dart';
@@ -35,6 +36,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => RegisterViewModel()),
         ChangeNotifierProvider(create: (_) => LoadingViewModel()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => ManagePropertyViewModel()),
       ],
       child: const MyApp(),
     ),

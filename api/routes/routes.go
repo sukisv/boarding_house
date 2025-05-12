@@ -51,5 +51,9 @@ func InitRoutes(e *echo.Echo) {
 		api.PUT("/bookings/:id", controllers.UpdateBooking)
 		api.DELETE("/bookings/:id", controllers.DeleteBooking)
 		api.PUT("/bookings/:id/status", controllers.UpdateBookingStatus)
+
+		// Facilities Routes
+		api.GET("/facilities", controllers.GetFacilities)
+		api.GET("/facilities/:id", controllers.GetFacilityByID)
 	}
 }
