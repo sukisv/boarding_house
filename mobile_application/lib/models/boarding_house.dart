@@ -35,7 +35,16 @@ class BoardingHouse {
     );
   }
 
-  String getGenderLabel() {
+  static String getGenderLabelStatic(String gender) {
+    const genderMapping = {
+      'male': 'Putra',
+      'female': 'Putri',
+      'mixed': 'Campur',
+    };
+    return genderMapping[gender] ?? 'Tidak Diketahui';
+  }
+
+  String getGenderLabel(String s) {
     const genderMapping = {
       'male': 'Putra',
       'female': 'Putri',

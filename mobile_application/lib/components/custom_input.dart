@@ -16,16 +16,19 @@ class CustomInput extends StatelessWidget {
       padding: const EdgeInsets.all(4.0),
       child: SizedBox(
         height: 32.0,
-        child: Center(
-          child: TextField(
-            controller: controller,
-            style: const TextStyle(fontSize: 12.0),
-            decoration: InputDecoration(
-              hintText: hintText,
-              hintStyle: const TextStyle(fontSize: 12.0),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(4.0),
-              ),
+        child: TextField(
+          controller: controller,
+          textAlignVertical: TextAlignVertical.center,
+          style: const TextStyle(fontSize: 12.0),
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: const TextStyle(fontSize: 12.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 8,
+              horizontal: 8,
             ),
           ),
         ),

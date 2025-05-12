@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../viewmodels/home/home_viewmodel.dart';
+import '../../../viewmodels/seeker/home/index.dart';
 import 'package:provider/provider.dart';
 
 class HomeView extends StatelessWidget {
@@ -51,7 +51,9 @@ class HomeView extends StatelessWidget {
                     Row(
                       children: [
                         Chip(
-                          label: Text(house.getGenderLabel()),
+                          label: Text(
+                            house.getGenderLabel(house.genderAllowed),
+                          ),
                           backgroundColor: Colors.grey[200],
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4),

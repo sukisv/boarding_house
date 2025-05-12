@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_application/constants/routes.dart';
 import 'package:mobile_application/viewmodels/auth/loading_viewmodel.dart';
+import 'package:mobile_application/viewmodels/auth/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class LoadingView extends StatelessWidget {
@@ -14,7 +15,8 @@ class LoadingView extends StatelessWidget {
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final isLoggedIn = await loadingViewModel.checkLoginStatus();
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final isLoggedIn = await loadingViewModel.checkLoginStatus(userProvider);
       if (isLoggedIn) {
         Navigator.pushReplacementNamed(context, Routes.home);
       } else {
