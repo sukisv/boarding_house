@@ -3,6 +3,8 @@ import 'package:mobile_application/components/half_modal.dart';
 import 'package:mobile_application/models/boarding_house.dart';
 import 'package:mobile_application/viewmodels/owner/manage_property/index.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_application/constants/routes.dart';
+import 'package:mobile_application/components/form_boarding_house_modal.dart';
 
 class ManagePropertiesView extends StatefulWidget {
   const ManagePropertiesView({super.key});
@@ -49,51 +51,61 @@ class _ManagePropertiesViewState extends State<ManagePropertiesView> {
                 borderRadius: BorderRadius.circular(4),
               ),
               margin: EdgeInsets.all(8),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      house.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+              child: InkWell(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    Routes.boardingHouseDetails,
+                    arguments: house.id,
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        house.name,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(house.description),
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Chip(
-                          label: Text(
-                            BoardingHouse.getGenderLabelStatic(
-                              house.genderAllowed,
+                      SizedBox(height: 4),
+                      Text(house.description),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Chip(
+                            label: Text(
+                              BoardingHouse.getGenderLabelStatic(
+                                house.genderAllowed,
+                              ),
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            backgroundColor: Colors.grey[200],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
                             ),
                           ),
-                          backgroundColor: Colors.grey[200],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Text('Rp ${house.pricePerMonth}/month'),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children:
-                          house.facilities.map((facility) {
-                            return Chip(
-                              label: Text(facility.name),
-                              backgroundColor: Colors.blue[50],
-                            );
-                          }).toList(),
-                    ),
-                  ],
+                          SizedBox(width: 8),
+                          Text('Rp ${house.pricePerMonth}/month'),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children:
+                            house.facilities.map((facility) {
+                              return Chip(
+                                label: Text(facility.name),
+                                backgroundColor: Colors.blue[50],
+                              );
+                            }).toList(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -108,68 +120,24 @@ class _ManagePropertiesViewState extends State<ManagePropertiesView> {
   }
 
   void _showCreateModal(BuildContext context) {
-    final viewModel = context.read<ManagePropertyViewModel>();
-    viewModel.fetchFacilities();
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) {
         return HalfModal(
           title: 'Create Boarding House',
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                TextField(decoration: InputDecoration(labelText: 'Name')),
-                TextField(
-                  decoration: InputDecoration(labelText: 'Description'),
-                ),
-                TextField(decoration: InputDecoration(labelText: 'Address')),
-                TextField(decoration: InputDecoration(labelText: 'City')),
-                TextField(
-                  decoration: InputDecoration(labelText: 'Price per Month'),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  decoration: InputDecoration(labelText: 'Rooms Available'),
-                  keyboardType: TextInputType.number,
-                ),
-                DropdownButtonFormField(
-                  items: [
-                    DropdownMenuItem(value: 'male', child: Text('Male')),
-                    DropdownMenuItem(value: 'female', child: Text('Female')),
-                    DropdownMenuItem(value: 'mixed', child: Text('Mixed')),
-                  ],
-                  onChanged: (value) {},
-                  decoration: InputDecoration(labelText: 'Gender Allowed'),
-                ),
-                ...viewModel.facilities.map(
-                  (facility) => CheckboxListTile(
-                    title: Text(facility.name),
-                    value: false,
-                    onChanged: (value) {},
-                  ),
-                ),
-                ElevatedButton(onPressed: () {}, child: Text('Submit')),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showEditModal(BuildContext context, BoardingHouse house) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        return HalfModal(
-          title: 'Edit Boarding House',
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text('Form for editing boarding house goes here.'),
+          child: FormBoardingHouseModal(
+            nameController: TextEditingController(),
+            descriptionController: TextEditingController(),
+            addressController: TextEditingController(),
+            cityController: TextEditingController(),
+            priceController: TextEditingController(),
+            roomsController: TextEditingController(),
+            genderAllowed: null,
+            onGenderChanged: (gender) {},
+            onSubmit: () {
+              Navigator.pop(context);
+            },
           ),
         );
       },

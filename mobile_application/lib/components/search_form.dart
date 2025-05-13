@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'custom_dropdown.dart';
 import 'custom_search_field.dart';
 import 'custom_button.dart';
+import 'package:mobile_application/models/boarding_house.dart';
 
 class SearchForm extends StatelessWidget {
   final TextEditingController searchController;
@@ -41,9 +42,19 @@ class SearchForm extends StatelessWidget {
         const SizedBox(height: 8),
         CustomDropdown(
           value: selectedGender,
-          items: genderOptions.keys.toList(),
+          items:
+              genderOptions.keys
+                  .map(
+                    (key) => DropdownMenuItem(
+                      value: key,
+                      child: Text(
+                        BoardingHouse.getGenderLabelStatic(key),
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  )
+                  .toList(),
           onChanged: onGenderChanged,
-          itemBuilder: (context, key) => Text(genderOptions[key]!),
         ),
         const SizedBox(height: 16),
         CustomButton(label: 'Apply', onPressed: onApply),

@@ -13,9 +13,9 @@ class ManagePropertyViewModel extends ChangeNotifier {
   int totalPages = 1;
 
   Future<void> fetchFacilities() async {
-    isLoading = true;
-    notifyListeners();
+    if (facilities.isNotEmpty) return; // Avoid re-fetching if already loaded
 
+    isLoading = true;
     try {
       final response = await ApiService().get('/api/facilities');
       final decodedResponse = jsonDecode(response.body);
@@ -28,7 +28,6 @@ class ManagePropertyViewModel extends ChangeNotifier {
       }
     } finally {
       isLoading = false;
-      notifyListeners();
     }
   }
 
@@ -60,8 +59,6 @@ class ManagePropertyViewModel extends ChangeNotifier {
 
     try {
       final data = {
-        'id': boardingHouse.id,
-        'owner_id': boardingHouse.ownerId,
         'name': boardingHouse.name,
         'description': boardingHouse.description,
         'address': boardingHouse.address,
@@ -70,15 +67,27 @@ class ManagePropertyViewModel extends ChangeNotifier {
         'room_available': boardingHouse.roomAvailable,
         'gender_allowed': boardingHouse.genderAllowed,
         'facilities': boardingHouse.facilities.map((f) => f.id).toList(),
-        // 'images': boardingHouse.images,
       };
 
-      await ApiService().post('/api/boarding-houses', body: data);
+      final response = await ApiService().post(
+        '/api/boarding-houses',
+        body: data,
+      );
+      if (response.statusCode == 201) {
+        if (kDebugMode) {
+          print('Boarding house created successfully.');
+        }
+        await fetchBoardingHouses(); // Refresh the list
+      } else {
+        throw Exception('Failed to create boarding house.');
+      }
     } catch (e) {
-      print('Error creating boarding house: $e');
+      if (kDebugMode) {
+        print('Error creating boarding house: $e');
+      }
     } finally {
       isLoading = false;
-      notifyListeners();
+      notifyListeners(); // Notify only when loading state changes
     }
   }
 

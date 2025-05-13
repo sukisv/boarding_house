@@ -160,6 +160,9 @@ func GetBoardingHouseByID(c echo.Context) error {
 }
 
 func CreateBoardingHouse(c echo.Context) error {
+	// Get authenticated user
+	user := c.Get("user").(context.AuthenticatedUser)
+
 	// Bind request payload
 	var request models.BoardingHouseRequest
 	if err := c.Bind(&request); err != nil {
@@ -181,6 +184,9 @@ func CreateBoardingHouse(c echo.Context) error {
 		})
 	}
 
+	// Set OwnerID from authenticated user
+	house.OwnerID = user.ID
+
 	// Save BoardingHouse to database
 	if err := config.DB.Create(&house).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -188,6 +194,29 @@ func CreateBoardingHouse(c echo.Context) error {
 			"status":  "error",
 			"data":    err.Error(),
 		})
+	}
+
+	// Save facilities to the database
+	for _, fid := range request.FacilityIDs {
+		facilityID, err := uuid.Parse(fid)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"message": "Invalid facility ID",
+				"status":  "error",
+				"data":    err.Error(),
+			})
+		}
+		facility := models.BoardingHouseFacility{
+			BoardingHouseID: house.ID,
+			FacilityID:      facilityID,
+		}
+		if err := config.DB.Create(&facility).Error; err != nil {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"message": "Failed to associate facilities",
+				"status":  "error",
+				"data":    err.Error(),
+			})
+		}
 	}
 
 	// Copy BoardingHouse data to response struct
@@ -266,11 +295,19 @@ func UpdateBoardingHouse(c echo.Context) error {
 	// Update facilities
 	config.DB.Where("boarding_house_id = ?", house.ID).Delete(&models.BoardingHouseFacility{})
 	for _, fid := range p.FacilityIDs {
-		pivot := models.BoardingHouseFacility{
-			BoardingHouseID: house.ID,
-			FacilityID:      fid,
+		facilityID, err := uuid.Parse(fid.String())
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"message": "Invalid facility ID",
+				"status":  "error",
+				"data":    err.Error(),
+			})
 		}
-		if err := config.DB.Create(&pivot).Error; err != nil {
+		facility := models.BoardingHouseFacility{
+			BoardingHouseID: house.ID,
+			FacilityID:      facilityID,
+		}
+		if err := config.DB.Create(&facility).Error; err != nil {
 			return c.JSON(http.StatusInternalServerError, echo.Map{
 				"message": "Gagal memperbarui fasilitas",
 				"status":  "error",

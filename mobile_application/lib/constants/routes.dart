@@ -5,4 +5,5 @@ class Routes {
   static const String account = '/account';
   static const String search = '/search';
   static const String register = '/register';
+  static const String boardingHouseDetails = '/boarding-house-details';
 }

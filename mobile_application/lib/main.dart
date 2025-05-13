@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_application/viewmodels/auth/login_viewmodel.dart';
 import 'package:mobile_application/viewmodels/auth/register_viewmodel.dart';
+import 'package:mobile_application/viewmodels/owner/boarding_house_details/index.dart';
 import 'package:mobile_application/viewmodels/owner/manage_property/index.dart';
 import 'package:mobile_application/viewmodels/seeker/favorite/index.dart';
 import 'package:mobile_application/viewmodels/seeker/home/index.dart';
 import 'package:mobile_application/viewmodels/seeker/search/index.dart';
+import 'package:mobile_application/views/owner/boarding_house_details/index.dart';
 import 'package:provider/provider.dart';
 import 'viewmodels/seeker/account/index.dart';
 import 'package:mobile_application/constants/routes.dart';
@@ -37,6 +39,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => LoadingViewModel()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ManagePropertyViewModel()),
+        ChangeNotifierProvider(create: (_) => BoardingHouseDetailsViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -63,6 +66,10 @@ class MyApp extends StatelessWidget {
         Routes.favorite: (context) => const BottomNavigation(),
         Routes.account: (context) => const BottomNavigation(),
         Routes.search: (context) => const BottomNavigation(),
+        Routes.boardingHouseDetails: (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as String;
+          return BoardingHouseDetailsView(boardingHouseId: args);
+        },
       },
     );
   }

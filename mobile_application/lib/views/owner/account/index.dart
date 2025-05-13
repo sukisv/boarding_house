@@ -28,7 +28,7 @@ class AccountView extends StatelessWidget {
             CustomButton(
               label: 'Logout',
               onPressed: () {
-                viewModel.logout();
+                viewModel.logout(userProvider); // Pass UserProvider to logout
                 Navigator.pushReplacementNamed(context, Routes.login);
               },
             ),

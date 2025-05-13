@@ -36,14 +36,15 @@ func (item *BoardingHouse) BeforeCreate(tx *gorm.DB) (err error) {
 
 // BoardingHouseRequest represents the request payload for creating or updating a BoardingHouse
 type BoardingHouseRequest struct {
-	OwnerID       string  `json:"owner_id" binding:"required,uuid"`
-	Name          string  `json:"name" binding:"required"`
-	Description   string  `json:"description"`
-	Address       string  `json:"address" binding:"required"`
-	City          string  `json:"city" binding:"required"`
-	PricePerMonth float64 `json:"price_per_month" binding:"required,gt=0"`
-	RoomAvailable int     `json:"room_available" binding:"required,gte=0"`
-	GenderAllowed string  `json:"gender_allowed" binding:"required,oneof=male female mixed"`
+	OwnerID       string   `json:"owner_id" binding:"required,uuid"`
+	Name          string   `json:"name" binding:"required"`
+	Description   string   `json:"description"`
+	Address       string   `json:"address" binding:"required"`
+	City          string   `json:"city" binding:"required"`
+	PricePerMonth float64  `json:"price_per_month" binding:"required,gt=0"`
+	RoomAvailable int      `json:"room_available" binding:"required,gte=0"`
+	GenderAllowed string   `json:"gender_allowed" binding:"required,oneof=male female mixed"`
+	FacilityIDs   []string `json:"facility_ids" binding:"required"`
 }
 
 // BoardingHouseResponse represents the response payload for a BoardingHouse

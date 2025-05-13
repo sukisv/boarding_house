@@ -3,10 +3,16 @@ import 'package:flutter/material.dart';
 class CustomInput extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
+  final TextInputType? keyboardType;
+  final bool obscureText;
+  final int? maxLines;
 
   const CustomInput({
     required this.controller,
     required this.hintText,
+    this.keyboardType,
+    this.obscureText = false,
+    this.maxLines = 1,
     super.key,
   });
 
@@ -18,6 +24,9 @@ class CustomInput extends StatelessWidget {
         height: 32.0,
         child: TextField(
           controller: controller,
+          keyboardType: keyboardType,
+          obscureText: obscureText,
+          maxLines: maxLines,
           textAlignVertical: TextAlignVertical.center,
           style: const TextStyle(fontSize: 12.0),
           decoration: InputDecoration(
