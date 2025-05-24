@@ -22,3 +22,6 @@
 # Go specific
 *.exe
 *.test
+
+# Ignore uploads folder
+uploads/

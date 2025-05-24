@@ -41,6 +41,7 @@ class _FormBoardingHouseModalState extends State<FormBoardingHouseModal> {
   List<Facility> facilities = [];
   List<String> selectedFacilities = [];
   bool isLoading = true;
+  BoardingHouse? existingHouse;
 
   @override
   void initState() {
@@ -105,94 +106,122 @@ class _FormBoardingHouseModalState extends State<FormBoardingHouseModal> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          if (isLoading)
-            const Center(child: CircularProgressIndicator())
-          else ...[
-            CustomInput(controller: widget.nameController, hintText: 'Name'),
-            CustomInput(
-              controller: widget.descriptionController,
-              hintText: 'Description',
-            ),
-            CustomInput(
-              controller: widget.addressController,
-              hintText: 'Address',
-            ),
-            CustomInput(controller: widget.cityController, hintText: 'City'),
-            CustomInput(
-              controller: widget.priceController,
-              hintText: 'Price per Month',
-              keyboardType: TextInputType.number,
-            ),
-            CustomInput(
-              controller: widget.roomsController,
-              hintText: 'Rooms Available',
-              keyboardType: TextInputType.number,
-            ),
-            CustomDropdown(
-              value: widget.genderAllowed ?? 'mixed',
-              items: const [
-                DropdownMenuItem(
-                  value: 'male',
-                  child: Text('Pria', style: TextStyle(fontSize: 12)),
-                ),
-                DropdownMenuItem(
-                  value: 'female',
-                  child: Text('Wanita', style: TextStyle(fontSize: 12)),
-                ),
-                DropdownMenuItem(
-                  value: 'mixed',
-                  child: Text('Campur', style: TextStyle(fontSize: 12)),
-                ),
-              ],
-              onChanged: widget.onGenderChanged,
-            ),
-            Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children:
-                  facilities.map((facility) {
-                    return SizedBox(
-                      width: MediaQuery.of(context).size.width / 2 - 24,
-                      child: CustomCheckbox(
-                        label: facility.name,
-                        value: selectedFacilities.contains(facility.id),
-                        onChanged: (isChecked) {
-                          setState(() {
-                            if (isChecked == true) {
-                              selectedFacilities.add(facility.id);
-                            } else {
-                              selectedFacilities.remove(facility.id);
-                            }
-                          });
-                        },
-                      ),
-                    );
-                  }).toList(),
-            ),
-            CustomButton(
-              label: 'Submit',
-              onPressed: () async {
-                final data = {
-                  'name': widget.nameController.text,
-                  'description': widget.descriptionController.text,
-                  'address': widget.addressController.text,
-                  'city': widget.cityController.text,
-                  'price_per_month': int.parse(widget.priceController.text),
-                  'room_available': int.parse(widget.roomsController.text),
-                  'gender_allowed': widget.genderAllowed ?? 'mixed',
-                  'facility_ids': selectedFacilities,
-                };
+    if (widget.nameController.text.isEmpty &&
+        widget.descriptionController.text.isEmpty) {
+      widget.nameController.text = existingHouse?.name ?? '';
+      widget.descriptionController.text = existingHouse?.description ?? '';
+      widget.addressController.text = existingHouse?.address ?? '';
+      widget.cityController.text = existingHouse?.city ?? '';
+      widget.priceController.text =
+          existingHouse?.pricePerMonth.toString() ?? '';
+      widget.roomsController.text =
+          existingHouse?.roomAvailable.toString() ?? '';
+    }
 
-                await ApiService().post('/api/boarding-houses', body: data);
-                widget.onSubmit();
-              },
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          existingHouse != null
+              ? 'Update Boarding House'
+              : 'Add Boarding House',
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            if (isLoading)
+              const Center(child: CircularProgressIndicator())
+            else ...[
+              CustomInput(controller: widget.nameController, hintText: 'Name'),
+              CustomInput(
+                controller: widget.descriptionController,
+                hintText: 'Description',
+              ),
+              CustomInput(
+                controller: widget.addressController,
+                hintText: 'Address',
+              ),
+              CustomInput(controller: widget.cityController, hintText: 'City'),
+              CustomInput(
+                controller: widget.priceController,
+                hintText: 'Price per Month',
+                keyboardType: TextInputType.number,
+              ),
+              CustomInput(
+                controller: widget.roomsController,
+                hintText: 'Rooms Available',
+                keyboardType: TextInputType.number,
+              ),
+              CustomDropdown(
+                value: widget.genderAllowed ?? 'mixed',
+                items: const [
+                  DropdownMenuItem(
+                    value: 'male',
+                    child: Text('Pria', style: TextStyle(fontSize: 12)),
+                  ),
+                  DropdownMenuItem(
+                    value: 'female',
+                    child: Text('Wanita', style: TextStyle(fontSize: 12)),
+                  ),
+                  DropdownMenuItem(
+                    value: 'mixed',
+                    child: Text('Campur', style: TextStyle(fontSize: 12)),
+                  ),
+                ],
+                onChanged: widget.onGenderChanged,
+              ),
+              Wrap(
+                spacing: 4,
+                runSpacing: 4,
+                children:
+                    facilities.map((facility) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width / 2 - 24,
+                        child: CustomCheckbox(
+                          label: facility.name,
+                          value: selectedFacilities.contains(facility.id),
+                          onChanged: (isChecked) {
+                            setState(() {
+                              if (isChecked == true) {
+                                selectedFacilities.add(facility.id);
+                              } else {
+                                selectedFacilities.remove(facility.id);
+                              }
+                            });
+                          },
+                        ),
+                      );
+                    }).toList(),
+              ),
+              CustomButton(
+                label: existingHouse != null ? 'Update' : 'Submit',
+                onPressed: () async {
+                  final data = {
+                    'name': widget.nameController.text,
+                    'description': widget.descriptionController.text,
+                    'address': widget.addressController.text,
+                    'city': widget.cityController.text,
+                    'price_per_month': int.parse(widget.priceController.text),
+                    'room_available': int.parse(widget.roomsController.text),
+                    'gender_allowed': widget.genderAllowed ?? 'mixed',
+                    'facility_ids': selectedFacilities,
+                  };
+
+                  if (existingHouse != null) {
+                    await ApiService().put(
+                      '/api/boarding-houses/${existingHouse!.id}',
+                      body: data,
+                    );
+                  } else {
+                    await ApiService().post('/api/boarding-houses', body: data);
+                  }
+                  widget.onSubmit();
+                },
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

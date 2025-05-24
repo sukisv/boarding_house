@@ -38,4 +38,24 @@ class BoardingHouseDetailsViewModel extends ChangeNotifier {
       rethrow;
     }
   }
+
+  Future<String> fetchBoardingHouseImage(String imageUrl) async {
+    try {
+      return await _apiService.showImage(imageUrl);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching boarding house image: $e');
+      }
+      rethrow;
+    }
+  }
+
+  String getFullImageUrl(String imageUrl) {
+    final cleaned = imageUrl.replaceAll('\\', '/');
+    if (cleaned.startsWith('/')) {
+      return _apiService.baseUrl + cleaned;
+    } else {
+      return '${_apiService.baseUrl}/$cleaned';
+    }
+  }
 }

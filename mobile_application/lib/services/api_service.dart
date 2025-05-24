@@ -125,4 +125,19 @@ class ApiService {
     }
     return response;
   }
+
+  Future<String> showImage(String endpoint) async {
+    await _ensureAuthToken();
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    if (_useAuth && _authToken != null) {
+      headers['Authorization'] = 'Bearer $_authToken';
+    }
+    final url = Uri.parse('$baseUrl$endpoint');
+    final response = await http.get(url, headers: headers);
+    if (response.statusCode == 200) {
+      return base64Encode(response.bodyBytes);
+    } else {
+      throw Exception('Failed to load image');
+    }
+  }
 }

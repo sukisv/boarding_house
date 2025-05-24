@@ -49,7 +49,9 @@ func GetBoardingHouses(c echo.Context) error {
 	db := config.DB.
 		Model(&models.BoardingHouse{}).
 		Preload("Owner").
-		Preload("Facilities")
+		Preload("Facilities").
+		Preload("Images").
+		Where("deleted_at IS NULL")
 
 	if userRole == string(models.RoleOwner) {
 		db = db.Where("owner_id = ?", userID)
@@ -145,6 +147,7 @@ func GetBoardingHouseByID(c echo.Context) error {
 	if err := config.DB.
 		Preload("Owner").
 		Preload("Facilities").
+		Preload("Images").
 		First(&house, "id = ?", id).Error; err != nil {
 		return c.JSON(http.StatusNotFound, echo.Map{
 			"message": "Boarding house not found",

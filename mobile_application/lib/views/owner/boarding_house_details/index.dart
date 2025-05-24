@@ -1,15 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/components/form_boarding_house_modal.dart';
 import 'package:mobile_application/models/boarding_house.dart';
 import 'package:mobile_application/viewmodels/owner/boarding_house_details/index.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_application/components/custom_button.dart';
 import 'package:mobile_application/components/boarding_house_details_card.dart';
+import 'package:mobile_application/components/image_carousel.dart';
 
 class BoardingHouseDetailsView extends StatelessWidget {
   final String boardingHouseId;
 
-  const BoardingHouseDetailsView({required this.boardingHouseId, Key? key})
-    : super(key: key);
+  const BoardingHouseDetailsView({required this.boardingHouseId, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +36,15 @@ class BoardingHouseDetailsView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (house.images.isNotEmpty) ...[
+                  SizedBox(
+                    height: 200,
+                    child: ImageCarousel(
+                      images: house.images,
+                      viewModel: viewModel,
+                    ),
+                  ),
+                ],
                 BoardingHouseDetailsCard(house: house),
                 SizedBox(height: 16),
                 Row(
@@ -49,7 +60,37 @@ class BoardingHouseDetailsView extends StatelessWidget {
                     CustomButton(
                       label: 'Edit',
                       onPressed: () {
-                        // Navigate to edit form or show edit modal
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => FormBoardingHouseModal(
+                                  nameController: TextEditingController(
+                                    text: house.name,
+                                  ),
+                                  descriptionController: TextEditingController(
+                                    text: house.description,
+                                  ),
+                                  addressController: TextEditingController(
+                                    text: house.address,
+                                  ),
+                                  cityController: TextEditingController(
+                                    text: house.city,
+                                  ),
+                                  priceController: TextEditingController(
+                                    text: house.pricePerMonth.toString(),
+                                  ),
+                                  roomsController: TextEditingController(
+                                    text: house.roomAvailable.toString(),
+                                  ),
+                                  genderAllowed: house.genderAllowed,
+                                  onGenderChanged: (value) {},
+                                  onSubmit: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                          ),
+                        );
                       },
                     ),
                   ],

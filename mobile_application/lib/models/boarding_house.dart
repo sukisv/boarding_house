@@ -9,6 +9,7 @@ class BoardingHouse {
   final int roomAvailable;
   final String genderAllowed;
   final List<Facility> facilities;
+  final List<BoardingHouseImage> images;
 
   BoardingHouse({
     required this.id,
@@ -21,6 +22,7 @@ class BoardingHouse {
     required this.roomAvailable,
     required this.genderAllowed,
     required this.facilities,
+    required this.images,
   });
 
   factory BoardingHouse.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,11 @@ class BoardingHouse {
       facilities:
           (json['facilities'] as List<dynamic>?)
               ?.map((facilityJson) => Facility.fromJson(facilityJson))
+              .toList() ??
+          [],
+      images:
+          (json['images'] as List<dynamic>?)
+              ?.map((imgJson) => BoardingHouseImage.fromJson(imgJson))
               .toList() ??
           [],
     );
@@ -60,5 +67,31 @@ class Facility {
 
   factory Facility.fromJson(Map<String, dynamic> json) {
     return Facility(id: json['id'], name: json['name']);
+  }
+}
+
+class BoardingHouseImage {
+  final String id;
+  final String boardingHouseId;
+  final String imageUrl;
+  final String createdAt;
+  final String updatedAt;
+
+  BoardingHouseImage({
+    required this.id,
+    required this.boardingHouseId,
+    required this.imageUrl,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory BoardingHouseImage.fromJson(Map<String, dynamic> json) {
+    return BoardingHouseImage(
+      id: json['id'],
+      boardingHouseId: json['boarding_house_id'],
+      imageUrl: json['image_url'],
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
+    );
   }
 }
