@@ -10,6 +10,8 @@ class BoardingHouse {
   final String genderAllowed;
   final List<Facility> facilities;
   final List<BoardingHouseImage> images;
+  final int bookedCount;
+  final int availableCount;
 
   BoardingHouse({
     required this.id,
@@ -23,19 +25,21 @@ class BoardingHouse {
     required this.genderAllowed,
     required this.facilities,
     required this.images,
+    required this.bookedCount,
+    required this.availableCount,
   });
 
   factory BoardingHouse.fromJson(Map<String, dynamic> json) {
     return BoardingHouse(
-      id: json['id'],
-      ownerId: json['owner_id'],
-      name: json['name'],
-      description: json['description'],
-      address: json['address'],
-      city: json['city'],
-      pricePerMonth: json['price_per_month'],
-      roomAvailable: json['room_available'],
-      genderAllowed: json['gender_allowed'],
+      id: json['id'] ?? '',
+      ownerId: json['owner_id'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
+      address: json['address'] ?? '',
+      city: json['city'] ?? '',
+      pricePerMonth: json['price_per_month'] ?? 0,
+      roomAvailable: json['room_available'] ?? 0,
+      genderAllowed: json['gender_allowed'] ?? '',
       facilities:
           (json['facilities'] as List<dynamic>?)
               ?.map((facilityJson) => Facility.fromJson(facilityJson))
@@ -46,6 +50,8 @@ class BoardingHouse {
               ?.map((imgJson) => BoardingHouseImage.fromJson(imgJson))
               .toList() ??
           [],
+      bookedCount: json['booked_count'] ?? 0,
+      availableCount: json['available_count'] ?? 0,
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_application/viewmodels/auth/login_viewmodel.dart';
 import 'package:mobile_application/viewmodels/auth/register_viewmodel.dart';
 import 'package:mobile_application/viewmodels/owner/boarding_house_details/index.dart';
+import 'package:mobile_application/viewmodels/owner/boarding_house_update_image/index.dart';
 import 'package:mobile_application/viewmodels/owner/manage_property/index.dart';
 import 'package:mobile_application/viewmodels/seeker/favorite/index.dart';
 import 'package:mobile_application/viewmodels/seeker/home/index.dart';
@@ -40,6 +41,9 @@ void main() {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ManagePropertyViewModel()),
         ChangeNotifierProvider(create: (_) => BoardingHouseDetailsViewModel()),
+        ChangeNotifierProvider(
+          create: (_) => BoardingHouseUpdateImageViewModel(),
+        ),
       ],
       child: const MyApp(),
     ),

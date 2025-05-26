@@ -19,6 +19,8 @@ class FormBoardingHouseModal extends StatefulWidget {
   final String? genderAllowed;
   final ValueChanged<String?> onGenderChanged;
   final VoidCallback onSubmit;
+  final BoardingHouse? existingHouse;
+  final List<String>? selectedFacilities;
 
   const FormBoardingHouseModal({
     required this.nameController,
@@ -30,28 +32,30 @@ class FormBoardingHouseModal extends StatefulWidget {
     required this.genderAllowed,
     required this.onGenderChanged,
     required this.onSubmit,
-    Key? key,
-  }) : super(key: key);
+    this.selectedFacilities,
+    this.existingHouse,
+    super.key,
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _FormBoardingHouseModalState createState() => _FormBoardingHouseModalState();
 }
 
 class _FormBoardingHouseModalState extends State<FormBoardingHouseModal> {
   List<Facility> facilities = [];
-  List<String> selectedFacilities = [];
+  late List<String> selectedFacilities;
   bool isLoading = true;
-  BoardingHouse? existingHouse;
 
   @override
   void initState() {
     super.initState();
+    selectedFacilities = widget.selectedFacilities ?? [];
     fetchFacilities();
   }
 
   Future<void> fetchFacilities() async {
     if (facilities.isNotEmpty) return;
-
     isLoading = true;
     try {
       final response = await ApiService().get('/api/facilities');
@@ -59,6 +63,10 @@ class _FormBoardingHouseModalState extends State<FormBoardingHouseModal> {
       final data = decodedResponse['data'] as List<dynamic>;
       facilities =
           data.map((facilityJson) => Facility.fromJson(facilityJson)).toList();
+      if (widget.existingHouse != null) {
+        selectedFacilities =
+            widget.existingHouse!.facilities.map((f) => f.id).toList();
+      }
       setState(() {});
     } catch (e) {
       if (kDebugMode) {
@@ -108,20 +116,21 @@ class _FormBoardingHouseModalState extends State<FormBoardingHouseModal> {
   Widget build(BuildContext context) {
     if (widget.nameController.text.isEmpty &&
         widget.descriptionController.text.isEmpty) {
-      widget.nameController.text = existingHouse?.name ?? '';
-      widget.descriptionController.text = existingHouse?.description ?? '';
-      widget.addressController.text = existingHouse?.address ?? '';
-      widget.cityController.text = existingHouse?.city ?? '';
+      widget.nameController.text = widget.existingHouse?.name ?? '';
+      widget.descriptionController.text =
+          widget.existingHouse?.description ?? '';
+      widget.addressController.text = widget.existingHouse?.address ?? '';
+      widget.cityController.text = widget.existingHouse?.city ?? '';
       widget.priceController.text =
-          existingHouse?.pricePerMonth.toString() ?? '';
+          widget.existingHouse?.pricePerMonth.toString() ?? '';
       widget.roomsController.text =
-          existingHouse?.roomAvailable.toString() ?? '';
+          widget.existingHouse?.roomAvailable.toString() ?? '';
     }
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          existingHouse != null
+          widget.existingHouse != null
               ? 'Update Boarding House'
               : 'Add Boarding House',
         ),
@@ -195,7 +204,7 @@ class _FormBoardingHouseModalState extends State<FormBoardingHouseModal> {
                     }).toList(),
               ),
               CustomButton(
-                label: existingHouse != null ? 'Update' : 'Submit',
+                label: widget.existingHouse != null ? 'Update' : 'Submit',
                 onPressed: () async {
                   final data = {
                     'name': widget.nameController.text,
@@ -208,9 +217,9 @@ class _FormBoardingHouseModalState extends State<FormBoardingHouseModal> {
                     'facility_ids': selectedFacilities,
                   };
 
-                  if (existingHouse != null) {
+                  if (widget.existingHouse != null) {
                     await ApiService().put(
-                      '/api/boarding-houses/${existingHouse!.id}',
+                      '/api/boarding-houses/${widget.existingHouse!.id}',
                       body: data,
                     );
                   } else {

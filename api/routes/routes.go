@@ -41,7 +41,6 @@ func InitRoutes(e *echo.Echo) {
 
 		// Boarding House Images Routes
 		api.POST("/boarding-house-images", controllers.UploadBoardingHouseImages) // multiple upload
-		api.GET("/boarding-house-images/:id", controllers.GetImagesByBoardingHouseID)
 		api.DELETE("/boarding-house-images/:id", controllers.DeleteBoardingHouseImage)
 
 		// Bookings Routes

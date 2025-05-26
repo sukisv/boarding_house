@@ -49,17 +49,19 @@ type BoardingHouseRequest struct {
 
 // BoardingHouseResponse represents the response payload for a BoardingHouse
 type BoardingHouseResponse struct {
-	ID            string                       `json:"id"`
-	OwnerID       string                       `json:"owner_id"`
-	Name          string                       `json:"name"`
-	Description   string                       `json:"description"`
-	Address       string                       `json:"address"`
-	City          string                       `json:"city"`
-	PricePerMonth float64                      `json:"price_per_month"`
-	RoomAvailable int                          `json:"room_available"`
-	GenderAllowed string                       `json:"gender_allowed"`
-	Facilities    []FacilityResponse           `json:"facilities"`
-	Images        []BoardingHouseImageResponse `json:"images"`
-	CreatedAt     time.Time                    `json:"created_at"`
-	UpdatedAt     time.Time                    `json:"updated_at"`
+	ID             string                       `json:"id"`
+	OwnerID        string                       `json:"owner_id"`
+	Name           string                       `json:"name"`
+	Description    string                       `json:"description"`
+	Address        string                       `json:"address"`
+	City           string                       `json:"city"`
+	PricePerMonth  float64                      `json:"price_per_month"`
+	RoomAvailable  int                          `json:"room_available"`
+	BookedCount    int64                        `json:"booked_count"`
+	AvailableCount int                          `json:"available_count"`
+	GenderAllowed  string                       `json:"gender_allowed"`
+	Facilities     []FacilityResponse           `json:"facilities"`
+	Images         []BoardingHouseImageResponse `json:"images"`
+	CreatedAt      time.Time                    `json:"created_at"`
+	UpdatedAt      time.Time                    `json:"updated_at"`
 }

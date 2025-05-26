@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_application/components/form_boarding_house_modal.dart';
 import 'package:mobile_application/models/boarding_house.dart';
@@ -7,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:mobile_application/components/custom_button.dart';
 import 'package:mobile_application/components/boarding_house_details_card.dart';
 import 'package:mobile_application/components/image_carousel.dart';
+import 'package:mobile_application/components/button_group.dart';
+import 'package:mobile_application/views/owner/boarding_house_update_image/index.dart';
 
 class BoardingHouseDetailsView extends StatelessWidget {
   final String boardingHouseId;
@@ -47,8 +48,7 @@ class BoardingHouseDetailsView extends StatelessWidget {
                 ],
                 BoardingHouseDetailsCard(house: house),
                 SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                ButtonGroupComponent(
                   children: [
                     CustomButton(
                       label: 'Delete',
@@ -88,6 +88,25 @@ class BoardingHouseDetailsView extends StatelessWidget {
                                   onSubmit: () {
                                     Navigator.pop(context);
                                   },
+                                  existingHouse: house,
+                                  selectedFacilities:
+                                      house.facilities
+                                          .map((f) => f.id)
+                                          .toList(),
+                                ),
+                          ),
+                        );
+                      },
+                    ),
+                    CustomButton(
+                      label: 'Update Image',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => BoardingHouseUpdateImageView(
+                                  boardingHouseId: house.id,
                                 ),
                           ),
                         );

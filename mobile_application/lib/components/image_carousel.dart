@@ -33,7 +33,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                 widget.images[index].imageUrl,
               );
               return ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(4),
                 child: Image.network(
                   imgUrl,
                   height: 200,

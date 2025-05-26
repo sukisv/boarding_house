@@ -118,12 +118,19 @@ func GetBoardingHouses(c echo.Context) error {
 	}
 
 	var responseHouses []models.BoardingHouseResponse
-	if err := copier.Copy(&responseHouses, &houses); err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "Failed to process response data",
-			"status":  "error",
-			"data":    err.Error(),
-		})
+	for _, house := range houses {
+		var bookedCount int64
+		config.DB.Model(&models.Booking{}).
+			Where("boarding_house_id = ? AND status = ? AND ? BETWEEN start_date AND end_date", house.ID, models.BookingConfirmed, time.Now()).
+			Count(&bookedCount)
+		availableCount := house.RoomAvailable - int(bookedCount)
+
+		var resp models.BoardingHouseResponse
+		copier.Copy(&resp, &house)
+		resp.BookedCount = bookedCount
+		resp.AvailableCount = availableCount
+
+		responseHouses = append(responseHouses, resp)
 	}
 
 	totalPages := int((total + int64(limit) - 1) / int64(limit))
@@ -155,10 +162,23 @@ func GetBoardingHouseByID(c echo.Context) error {
 			"data":    nil,
 		})
 	}
+
+	var bookedCount int64
+	config.DB.Model(&models.Booking{}).
+		Where("boarding_house_id = ? AND status = ? AND ? BETWEEN start_date AND end_date", house.ID, models.BookingConfirmed, time.Now()).
+		Count(&bookedCount)
+	availableCount := house.RoomAvailable - int(bookedCount)
+
+	var resp models.BoardingHouseResponse
+	copier.Copy(&resp, &house)
+
+	resp.BookedCount = bookedCount
+	resp.AvailableCount = availableCount
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Successfully retrieved boarding house",
 		"status":  "success",
-		"data":    house,
+		"data":    resp,
 	})
 }
 
