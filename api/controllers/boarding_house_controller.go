@@ -104,7 +104,7 @@ func GetBoardingHouses(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to count boarding houses",
 			"status":  "error",
-			"data":    err.Error(),
+			"data":    []models.BoardingHouseResponse{},
 		})
 	}
 
@@ -113,7 +113,7 @@ func GetBoardingHouses(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to retrieve boarding houses",
 			"status":  "error",
-			"data":    err.Error(),
+			"data":    []models.BoardingHouseResponse{},
 		})
 	}
 
@@ -193,7 +193,7 @@ func CreateBoardingHouse(c echo.Context) error {
 			"message": "Failed to read request",
 			"status":  "error",
 			"success": false,
-			"data":    err.Error(),
+			"data":    nil,
 		})
 	}
 
@@ -203,7 +203,7 @@ func CreateBoardingHouse(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process request data",
 			"status":  "error",
-			"data":    err.Error(),
+			"data":    nil,
 		})
 	}
 
@@ -215,7 +215,7 @@ func CreateBoardingHouse(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to create boarding house",
 			"status":  "error",
-			"data":    err.Error(),
+			"data":    nil,
 		})
 	}
 
@@ -226,7 +226,7 @@ func CreateBoardingHouse(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, echo.Map{
 				"message": "Invalid facility ID",
 				"status":  "error",
-				"data":    err.Error(),
+				"data":    nil,
 			})
 		}
 		facility := models.BoardingHouseFacility{
@@ -237,7 +237,7 @@ func CreateBoardingHouse(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, echo.Map{
 				"message": "Failed to associate facilities",
 				"status":  "error",
-				"data":    err.Error(),
+				"data":    nil,
 			})
 		}
 	}
@@ -248,7 +248,7 @@ func CreateBoardingHouse(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process response data",
 			"status":  "error",
-			"data":    err.Error(),
+			"data":    nil,
 		})
 	}
 
@@ -293,7 +293,7 @@ func UpdateBoardingHouse(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "Gagal membaca request",
 			"status":  "error",
-			"data":    err.Error(),
+			"data":    nil,
 		})
 	}
 
@@ -311,7 +311,7 @@ func UpdateBoardingHouse(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Gagal memperbarui boarding house",
 			"status":  "error",
-			"data":    err.Error(),
+			"data":    nil,
 		})
 	}
 
@@ -323,7 +323,7 @@ func UpdateBoardingHouse(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, echo.Map{
 				"message": "Invalid facility ID",
 				"status":  "error",
-				"data":    err.Error(),
+				"data":    nil,
 			})
 		}
 		facility := models.BoardingHouseFacility{
@@ -334,7 +334,7 @@ func UpdateBoardingHouse(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, echo.Map{
 				"message": "Gagal memperbarui fasilitas",
 				"status":  "error",
-				"data":    err.Error(),
+				"data":    nil,
 			})
 		}
 	}
@@ -377,7 +377,7 @@ func DeleteBoardingHouse(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to delete boarding house",
 			"status":  "error",
-			"data":    err.Error(),
+			"data":    nil,
 		})
 	}
 

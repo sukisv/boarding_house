@@ -46,13 +46,16 @@ func InitRoutes(e *echo.Echo) {
 		// Bookings Routes
 		api.POST("/bookings", controllers.CreateBooking)
 		api.GET("/bookings", controllers.GetBookings)
+		api.PUT("/bookings/:id/status", controllers.UpdateBookingStatus)
 		api.GET("/bookings/:id", controllers.GetBookingByID)
 		api.PUT("/bookings/:id", controllers.UpdateBooking)
 		api.DELETE("/bookings/:id", controllers.DeleteBooking)
-		api.PUT("/bookings/:id/status", controllers.UpdateBookingStatus)
 
 		// Facilities Routes
 		api.GET("/facilities", controllers.GetFacilities)
 		api.GET("/facilities/:id", controllers.GetFacilityByID)
+
+		// Dashboard Route
+		api.GET("/dashboard", controllers.GetDashboard)
 	}
 }

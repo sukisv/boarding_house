@@ -108,17 +108,40 @@ func CreateBooking(c echo.Context) error {
 func GetBookings(c echo.Context) error {
 	user := c.Get("user").(context.AuthenticatedUser)
 	userID := user.ID.String()
+	userRole := string(user.Role)
 
 	var bookings []models.Booking
-	if err := config.DB.
-		Preload("BoardingHouse").
-		Where("user_id = ?", userID).
-		Find(&bookings).Error; err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "Failed to retrieve bookings",
+
+	if userRole == string(models.RoleSeeker) {
+		if err := config.DB.
+			Preload("BoardingHouse").
+			Where("user_id = ?", userID).
+			Find(&bookings).Error; err != nil {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"message": "Failed to retrieve bookings",
+				"status":  "error",
+				"success": false,
+				"data":    err.Error(),
+			})
+		}
+	} else if userRole == string(models.RoleOwner) {
+		if err := config.DB.
+			Preload("User").
+			Joins("JOIN boarding_houses ON bookings.boarding_house_id = boarding_houses.id").
+			Where("boarding_houses.owner_id = ?", userID).
+			Find(&bookings).Error; err != nil {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"message": "Failed to retrieve bookings",
+				"status":  "error",
+				"success": false,
+				"data":    err.Error(),
+			})
+		}
+	} else {
+		return c.JSON(http.StatusForbidden, echo.Map{
+			"message": "Unauthorized access",
 			"status":  "error",
 			"success": false,
-			"data":    err.Error(),
 		})
 	}
 
@@ -178,26 +201,32 @@ func UpdateBooking(c echo.Context) error {
 	// Get authenticated user
 	user := c.Get("user").(context.AuthenticatedUser)
 	userID := user.ID.String()
+	userRole := string(user.Role)
 	bookingID := c.Param("id")
 
-	// Find booking by ID
+	// Hanya owner dari kos terkait yang bisa update booking
+	if userRole != string(models.RoleOwner) {
+		return c.JSON(http.StatusForbidden, echo.Map{"message": "Only owner can update booking", "status": "error"})
+	}
+
 	var booking models.Booking
-	if err := config.DB.Where("id = ? AND user_id = ?", bookingID, userID).First(&booking).Error; err != nil {
+	if err := config.DB.Preload("BoardingHouse").First(&booking, "id = ?", bookingID).Error; err != nil {
 		return c.JSON(http.StatusNotFound, echo.Map{"message": "Booking not found", "status": "error"})
 	}
 
-	// Check if booking is pending
+	if booking.BoardingHouse.OwnerID.String() != userID {
+		return c.JSON(http.StatusForbidden, echo.Map{"message": "You are not authorized to update this booking", "status": "error"})
+	}
+
 	if booking.Status != models.BookingPending {
 		return c.JSON(http.StatusBadRequest, echo.Map{"message": "Only pending bookings can be updated", "status": "error"})
 	}
 
-	// Bind request payload
 	var payload models.BookingRequest
 	if err := c.Bind(&payload); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"message": "Invalid request body", "status": "error", "data": err.Error()})
 	}
 
-	// Update booking dates if provided
 	if !payload.StartDate.IsZero() {
 		if t, err := time.Parse("2006-01-02", payload.StartDate.Format("2006-01-02")); err == nil {
 			booking.StartDate = t
@@ -209,18 +238,15 @@ func UpdateBooking(c echo.Context) error {
 		}
 	}
 
-	// Save updated booking to database
-	if err := config.DB.Save(&booking).Error; err != nil {
+	if err := config.DB.Model(&booking).Omit("CreatedAt", "UpdatedAt").Save(&booking).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{"message": "Failed to update booking", "status": "error", "data": err.Error()})
 	}
 
-	// Copy booking data to response struct
 	response := models.BookingResponse{}
 	if err := copier.Copy(&response, &booking); err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{"message": "Failed to process response data", "status": "error"})
 	}
 
-	// Return response
 	return c.JSON(http.StatusOK, echo.Map{"message": "Booking updated successfully", "status": "success", "data": response})
 }
 
@@ -247,6 +273,18 @@ func DeleteBooking(c echo.Context) error {
 
 func UpdateBookingStatus(c echo.Context) error {
 	bookingID := c.Param("id")
+	user := c.Get("user").(context.AuthenticatedUser)
+	userID := user.ID.String()
+	userRole := string(user.Role)
+
+	if userRole != string(models.RoleOwner) {
+		return c.JSON(http.StatusForbidden, echo.Map{
+			"message": "Only owner can update booking status",
+			"status":  "error",
+			"success": false,
+		})
+	}
+
 	var req struct {
 		Status models.BookingStatus `json:"status"`
 	}
@@ -269,8 +307,6 @@ func UpdateBookingStatus(c echo.Context) error {
 		})
 	}
 
-	user := c.Get("user").(context.AuthenticatedUser)
-	userID := user.ID.String()
 	if booking.BoardingHouse.OwnerID.String() != userID {
 		return c.JSON(http.StatusForbidden, echo.Map{
 			"message": "You are not authorized to update this booking",
@@ -279,8 +315,16 @@ func UpdateBookingStatus(c echo.Context) error {
 		})
 	}
 
+	if booking.Status != models.BookingPending {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "Only pending bookings can be confirmed or cancelled",
+			"status":  "error",
+			"success": false,
+		})
+	}
+
 	booking.Status = req.Status
-	if err := config.DB.Save(&booking).Error; err != nil {
+	if err := config.DB.Model(&booking).Omit("CreatedAt", "UpdatedAt").Save(&booking).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to update booking status",
 			"status":  "error",

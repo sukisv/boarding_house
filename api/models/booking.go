@@ -49,14 +49,15 @@ type BookingRequest struct {
 
 // BookingResponse represents the response payload for a Booking
 type BookingResponse struct {
-	ID              string                 `json:"id"`
-	UserID          string                 `json:"user_id"`
-	BoardingHouseID string                 `json:"boarding_house_id"`
-	StartDate       time.Time              `json:"start_date"`
-	EndDate         time.Time              `json:"end_date"`
-	Status          BookingStatus          `json:"status"`
-	User            *UserResponse          `json:"user,omitempty"`
-	BoardingHouse   *BoardingHouseResponse `json:"boarding_house,omitempty"`
-	CreatedAt       time.Time              `json:"created_at"`
-	UpdatedAt       time.Time              `json:"updated_at"`
+	ID              string        `json:"id"`
+	UserID          string        `json:"user_id"`
+	BoardingHouseID string        `json:"boarding_house_id"`
+	StartDate       time.Time     `json:"start_date"`
+	EndDate         time.Time     `json:"end_date"`
+	Status          BookingStatus `json:"status"`
+	CreatedAt       time.Time     `json:"created_at"`
+	UpdatedAt       time.Time     `json:"updated_at"`
+
+	User          *UserResponse          `json:"user,omitempty"`
+	BoardingHouse *BoardingHouseResponse `json:"boarding_house,omitempty"`
 }
