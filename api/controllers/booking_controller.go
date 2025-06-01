@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"anak_kos/config"
@@ -110,38 +111,60 @@ func GetBookings(c echo.Context) error {
 	userID := user.ID.String()
 	userRole := string(user.Role)
 
+	search := c.QueryParam("search")
+	status := c.QueryParam("status")
+	pageParam := c.QueryParam("page")
+	limitParam := c.QueryParam("limit")
+
+	limit := 10
+	page := 1
+	if limitParam != "" {
+		if l, err := strconv.Atoi(limitParam); err == nil && l > 0 {
+			limit = l
+		}
+	}
+	if pageParam != "" {
+		if p, err := strconv.Atoi(pageParam); err == nil && p > 0 {
+			page = p
+		}
+	}
+	offset := (page - 1) * limit
+
 	var bookings []models.Booking
+	db := config.DB.Model(&models.Booking{})
 
 	if userRole == string(models.RoleSeeker) {
-		if err := config.DB.
-			Preload("BoardingHouse").
-			Where("user_id = ?", userID).
-			Find(&bookings).Error; err != nil {
-			return c.JSON(http.StatusInternalServerError, echo.Map{
-				"message": "Failed to retrieve bookings",
-				"status":  "error",
-				"success": false,
-				"data":    err.Error(),
-			})
-		}
+		db = db.Preload("BoardingHouse").Preload("BoardingHouse.Images").Preload("BoardingHouse.Facilities").Preload("BoardingHouse.Owner").Preload("User").Where("user_id = ?", userID)
 	} else if userRole == string(models.RoleOwner) {
-		if err := config.DB.
-			Preload("User").
-			Joins("JOIN boarding_houses ON bookings.boarding_house_id = boarding_houses.id").
-			Where("boarding_houses.owner_id = ?", userID).
-			Find(&bookings).Error; err != nil {
-			return c.JSON(http.StatusInternalServerError, echo.Map{
-				"message": "Failed to retrieve bookings",
-				"status":  "error",
-				"success": false,
-				"data":    err.Error(),
-			})
-		}
+		db = db.Preload("User").Preload("BoardingHouse").Joins("JOIN boarding_houses ON bookings.boarding_house_id = boarding_houses.id").Where("boarding_houses.owner_id = ?", userID)
 	} else {
 		return c.JSON(http.StatusForbidden, echo.Map{
 			"message": "Unauthorized access",
 			"status":  "error",
 			"success": false,
+		})
+	}
+
+	// Filter by status
+	if status != "" {
+		db = db.Where("bookings.status = ?", status)
+	}
+
+	if search != "" {
+		db = db.Joins("LEFT JOIN users ON bookings.user_id = users.id").Joins("LEFT JOIN boarding_houses bh ON bookings.boarding_house_id = bh.id").Where("users.name ILIKE ? OR bh.name ILIKE ?", "%"+search+"%", "%"+search+"%")
+	}
+
+	var total int64
+	db.Count(&total)
+
+	totalPages := int((total + int64(limit) - 1) / int64(limit))
+
+	if err := db.Limit(limit).Offset(offset).Find(&bookings).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Failed to retrieve bookings",
+			"status":  "error",
+			"success": false,
+			"data":    err.Error(),
 		})
 	}
 
@@ -160,19 +183,37 @@ func GetBookings(c echo.Context) error {
 		"status":  "success",
 		"success": true,
 		"data":    responseBookings,
+		"meta": echo.Map{
+			"page":        page,
+			"limit":       limit,
+			"total":       total,
+			"total_pages": totalPages,
+		},
 	})
 }
 
 func GetBookingByID(c echo.Context) error {
 	user := c.Get("user").(context.AuthenticatedUser)
 	userID := user.ID.String()
+	userRole := string(user.Role)
 	bookingID := c.Param("id")
 
 	var booking models.Booking
-	if err := config.DB.
-		Preload("BoardingHouse").
-		Where("id = ? AND user_id = ?", bookingID, userID).
-		First(&booking).Error; err != nil {
+	db := config.DB.Preload("BoardingHouse").Preload("User")
+
+	if userRole == string(models.RoleSeeker) {
+		db = db.Where("bookings.id = ? AND bookings.user_id = ?", bookingID, userID)
+	} else if userRole == string(models.RoleOwner) {
+		db = db.Joins("JOIN boarding_houses ON bookings.boarding_house_id = boarding_houses.id").Where("bookings.id = ? AND boarding_houses.owner_id = ?", bookingID, userID)
+	} else {
+		return c.JSON(http.StatusForbidden, echo.Map{
+			"message": "Unauthorized access",
+			"status":  "error",
+			"success": false,
+		})
+	}
+
+	if err := db.First(&booking).Error; err != nil {
 		return c.JSON(http.StatusNotFound, echo.Map{
 			"message": "Booking not found",
 			"status":  "error",

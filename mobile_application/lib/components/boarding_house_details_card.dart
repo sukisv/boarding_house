@@ -30,6 +30,9 @@ class BoardingHouseDetailsCard extends StatelessWidget {
                 return Chip(
                   label: Text(facility.name),
                   backgroundColor: Colors.blue[50],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 );
               }).toList(),
         ),

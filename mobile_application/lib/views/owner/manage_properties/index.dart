@@ -28,7 +28,7 @@ class _ManagePropertiesViewState extends State<ManagePropertiesView> {
     final viewModel = context.watch<ManagePropertyViewModel>();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Manage Properties')),
+      appBar: AppBar(title: Text('Kelola Properti')),
       body: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification scrollInfo) {
           if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent &&
@@ -89,7 +89,7 @@ class _ManagePropertiesViewState extends State<ManagePropertiesView> {
                             ),
                           ),
                           SizedBox(width: 8),
-                          Text('Rp ${house.pricePerMonth}/month'),
+                          Text('Rp ${house.pricePerMonth}/bulan'),
                         ],
                       ),
                       SizedBox(height: 8),
@@ -101,6 +101,9 @@ class _ManagePropertiesViewState extends State<ManagePropertiesView> {
                               return Chip(
                                 label: Text(facility.name),
                                 backgroundColor: Colors.blue[50],
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
                               );
                             }).toList(),
                       ),
@@ -124,20 +127,28 @@ class _ManagePropertiesViewState extends State<ManagePropertiesView> {
       context: context,
       isScrollControlled: true,
       builder: (context) {
+        final height = MediaQuery.of(context).size.height * 0.8;
         return HalfModal(
-          title: 'Create Boarding House',
-          child: FormBoardingHouseModal(
-            nameController: TextEditingController(),
-            descriptionController: TextEditingController(),
-            addressController: TextEditingController(),
-            cityController: TextEditingController(),
-            priceController: TextEditingController(),
-            roomsController: TextEditingController(),
-            genderAllowed: null,
-            onGenderChanged: (gender) {},
-            onSubmit: () {
-              Navigator.pop(context);
-            },
+          title: 'Tambah Kos',
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: height),
+              child: FormBoardingHouseModal(
+                nameController: TextEditingController(),
+                descriptionController: TextEditingController(),
+                addressController: TextEditingController(),
+                cityController: TextEditingController(),
+                priceController: TextEditingController(),
+                roomsController: TextEditingController(),
+                genderAllowed: null,
+                onSubmit: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
           ),
         );
       },

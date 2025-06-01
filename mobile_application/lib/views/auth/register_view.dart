@@ -13,17 +13,17 @@ class RegisterView extends StatelessWidget {
     final passwordController = TextEditingController();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
+      appBar: AppBar(title: Text('Daftar')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CustomInput(controller: emailController, hintText: 'Email'),
-            CustomInput(controller: phoneController, hintText: 'Phone Number'),
-            CustomInput(controller: passwordController, hintText: 'Password'),
+            CustomInput(controller: phoneController, hintText: 'Nomor Telepon'),
+            CustomInput(controller: passwordController, hintText: 'Kata Sandi'),
             CustomButton(
-              label: 'Register',
+              label: 'Daftar',
               onPressed: () {
                 viewModel.register(
                   email: emailController.text,

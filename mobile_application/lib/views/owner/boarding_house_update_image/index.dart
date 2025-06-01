@@ -55,7 +55,7 @@ class _BoardingHouseUpdateImageViewState
       listen: false,
     );
     return Scaffold(
-      appBar: AppBar(title: Text('Update Images')),
+      appBar: AppBar(title: Text('Perbarui Gambar')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

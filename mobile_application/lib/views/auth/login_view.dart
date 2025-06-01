@@ -16,7 +16,7 @@ class LoginView extends StatelessWidget {
     final loginViewModel = Provider.of<LoginViewModel>(context, listen: false);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: Text('Masuk')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -24,11 +24,11 @@ class LoginView extends StatelessWidget {
           children: [
             CustomInput(
               controller: emailOrPhoneController,
-              hintText: 'Email or Phone Number',
+              hintText: 'Email atau Nomor Telepon',
             ),
-            CustomInput(controller: passwordController, hintText: 'Password'),
+            CustomInput(controller: passwordController, hintText: 'Kata Sandi'),
             CustomButton(
-              label: 'Login',
+              label: 'Masuk',
               onPressed: () async {
                 final userProvider = Provider.of<UserProvider>(
                   context,
@@ -43,7 +43,7 @@ class LoginView extends StatelessWidget {
                   Navigator.pushReplacementNamed(context, Routes.home);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Login failed. Please try again.')),
+                    SnackBar(content: Text('Gagal masuk. Silakan coba lagi.')),
                   );
                 }
               },

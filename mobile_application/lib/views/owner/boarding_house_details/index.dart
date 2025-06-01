@@ -19,16 +19,18 @@ class BoardingHouseDetailsView extends StatelessWidget {
     final viewModel = Provider.of<BoardingHouseDetailsViewModel>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Boarding House Details')),
+      appBar: AppBar(title: Text('Detail Kos')),
       body: FutureBuilder<BoardingHouse>(
         future: viewModel.fetchBoardingHouseDetails(boardingHouseId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Text('Terjadi kesalahan: \\${snapshot.error}'),
+            );
           } else if (!snapshot.hasData) {
-            return Center(child: Text('No details available.'));
+            return Center(child: Text('Detail tidak tersedia.'));
           }
 
           final house = snapshot.data!;
@@ -51,7 +53,7 @@ class BoardingHouseDetailsView extends StatelessWidget {
                 ButtonGroupComponent(
                   children: [
                     CustomButton(
-                      label: 'Delete',
+                      label: 'Hapus',
                       onPressed: () {
                         viewModel.deleteBoardingHouse(house.id);
                         Navigator.pop(context);
@@ -84,7 +86,6 @@ class BoardingHouseDetailsView extends StatelessWidget {
                                     text: house.roomAvailable.toString(),
                                   ),
                                   genderAllowed: house.genderAllowed,
-                                  onGenderChanged: (value) {},
                                   onSubmit: () {
                                     Navigator.pop(context);
                                   },
@@ -99,7 +100,7 @@ class BoardingHouseDetailsView extends StatelessWidget {
                       },
                     ),
                     CustomButton(
-                      label: 'Update Image',
+                      label: 'Perbarui Gambar',
                       onPressed: () {
                         Navigator.push(
                           context,

@@ -18,7 +18,7 @@ class AccountView extends StatelessWidget {
     final user = userProvider.user;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Account')),
+      appBar: AppBar(title: const Text('Akun')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -26,7 +26,7 @@ class AccountView extends StatelessWidget {
             if (user != null) UserInfoCard(user: user),
             const SizedBox(height: 20),
             CustomButton(
-              label: 'Logout',
+              label: 'Keluar',
               onPressed: () {
                 viewModel.logout(userProvider); // Pass UserProvider to logout
                 Navigator.pushReplacementNamed(context, Routes.login);

@@ -1,3 +1,5 @@
+import 'package:mobile_application/models/user.dart';
+
 class BoardingHouse {
   final String id;
   final String ownerId;
@@ -10,6 +12,7 @@ class BoardingHouse {
   final String genderAllowed;
   final List<Facility> facilities;
   final List<BoardingHouseImage> images;
+  final User owner;
   final int bookedCount;
   final int availableCount;
 
@@ -27,6 +30,7 @@ class BoardingHouse {
     required this.images,
     required this.bookedCount,
     required this.availableCount,
+    required this.owner,
   });
 
   factory BoardingHouse.fromJson(Map<String, dynamic> json) {
@@ -52,6 +56,7 @@ class BoardingHouse {
           [],
       bookedCount: json['booked_count'] ?? 0,
       availableCount: json['available_count'] ?? 0,
+      owner: User.fromJson(json['owner'] ?? {}),
     );
   }
 

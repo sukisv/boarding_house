@@ -17,7 +17,6 @@ class FormBoardingHouseModal extends StatefulWidget {
   final TextEditingController priceController;
   final TextEditingController roomsController;
   final String? genderAllowed;
-  final ValueChanged<String?> onGenderChanged;
   final VoidCallback onSubmit;
   final BoardingHouse? existingHouse;
   final List<String>? selectedFacilities;
@@ -30,7 +29,6 @@ class FormBoardingHouseModal extends StatefulWidget {
     required this.priceController,
     required this.roomsController,
     required this.genderAllowed,
-    required this.onGenderChanged,
     required this.onSubmit,
     this.selectedFacilities,
     this.existingHouse,
@@ -46,11 +44,13 @@ class _FormBoardingHouseModalState extends State<FormBoardingHouseModal> {
   List<Facility> facilities = [];
   late List<String> selectedFacilities;
   bool isLoading = true;
+  late String? genderAllowed;
 
   @override
   void initState() {
     super.initState();
     selectedFacilities = widget.selectedFacilities ?? [];
+    genderAllowed = widget.genderAllowed ?? 'mixed';
     fetchFacilities();
   }
 
@@ -163,7 +163,7 @@ class _FormBoardingHouseModalState extends State<FormBoardingHouseModal> {
                 keyboardType: TextInputType.number,
               ),
               CustomDropdown(
-                value: widget.genderAllowed ?? 'mixed',
+                value: genderAllowed ?? 'mixed',
                 items: const [
                   DropdownMenuItem(
                     value: 'male',
@@ -178,7 +178,14 @@ class _FormBoardingHouseModalState extends State<FormBoardingHouseModal> {
                     child: Text('Campur', style: TextStyle(fontSize: 12)),
                   ),
                 ],
-                onChanged: widget.onGenderChanged,
+                onChanged: (val) {
+                  if (kDebugMode) {
+                    print(val);
+                  }
+                  setState(() {
+                    genderAllowed = val;
+                  });
+                },
               ),
               Wrap(
                 spacing: 4,
@@ -213,7 +220,7 @@ class _FormBoardingHouseModalState extends State<FormBoardingHouseModal> {
                     'city': widget.cityController.text,
                     'price_per_month': int.parse(widget.priceController.text),
                     'room_available': int.parse(widget.roomsController.text),
-                    'gender_allowed': widget.genderAllowed ?? 'mixed',
+                    'gender_allowed': genderAllowed ?? 'mixed',
                     'facility_ids': selectedFacilities,
                   };
 
