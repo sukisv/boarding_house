@@ -54,11 +54,182 @@ class SeekerBoardingHouseDetailsView extends StatelessWidget {
                   children: [
                     CustomButton(
                       label: 'Booking',
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Fitur booking segera hadir!'),
+                      onPressed: () async {
+                        DateTime? startDate;
+                        DateTime? endDate;
+                        await showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(4),
+                            ),
                           ),
+                          builder: (context) {
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom,
+                                left: 16,
+                                right: 16,
+                                top: 24,
+                              ),
+                              child: StatefulBuilder(
+                                builder: (context, setModalState) {
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text(
+                                        'Booking Kos',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'Tanggal Mulai',
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                      InkWell(
+                                        onTap: () async {
+                                          final picked = await showDatePicker(
+                                            context: context,
+                                            initialDate: DateTime.now(),
+                                            firstDate: DateTime.now(),
+                                            lastDate: DateTime.now().add(
+                                              Duration(days: 365),
+                                            ),
+                                          );
+                                          if (picked != null) {
+                                            setModalState(
+                                              () => startDate = picked,
+                                            );
+                                          }
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 6,
+                                            horizontal: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.grey,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                          height: 32,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            startDate != null
+                                                ? startDate!
+                                                    .toIso8601String()
+                                                    .substring(0, 10)
+                                                : 'Pilih tanggal mulai',
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        'Tanggal Selesai',
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                      InkWell(
+                                        onTap: () async {
+                                          final picked = await showDatePicker(
+                                            context: context,
+                                            initialDate:
+                                                startDate ?? DateTime.now(),
+                                            firstDate:
+                                                startDate ?? DateTime.now(),
+                                            lastDate: DateTime.now().add(
+                                              Duration(days: 365),
+                                            ),
+                                          );
+                                          if (picked != null) {
+                                            setModalState(
+                                              () => endDate = picked,
+                                            );
+                                          }
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 6,
+                                            horizontal: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.grey,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                          height: 32,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            endDate != null
+                                                ? endDate!
+                                                    .toIso8601String()
+                                                    .substring(0, 10)
+                                                : 'Pilih tanggal selesai',
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      CustomButton(
+                                        label: 'Konfirmasi Booking',
+                                        onPressed: () async {
+                                          if (startDate == null ||
+                                              endDate == null) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Pilih tanggal mulai dan selesai!',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                            return;
+                                          }
+                                          Navigator.pop(context);
+                                          final success = await viewModel
+                                              .bookingBoardingHouse(
+                                                boardingHouseId: house.id,
+                                                startDate: startDate!,
+                                                endDate: endDate!,
+                                              );
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                success
+                                                    ? 'Booking berhasil!'
+                                                    : 'Booking gagal!',
+                                                style: TextStyle(fontSize: 12),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(height: 8),
+                                    ],
+                                  );
+                                },
+                              ),
+                            );
+                          },
                         );
                       },
                     ),

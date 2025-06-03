@@ -180,7 +180,10 @@ func UpdateUser(c echo.Context) error {
 		})
 	}
 
-	// Copy request data to user model
+	oldID := user.ID
+	oldRole := user.Role
+	oldPassword := user.Password
+
 	if err := copier.Copy(&user, &request); err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process request data",
@@ -189,6 +192,9 @@ func UpdateUser(c echo.Context) error {
 			"data":    err.Error(),
 		})
 	}
+	user.ID = oldID
+	user.Role = oldRole
+	user.Password = oldPassword
 
 	// Save updated user to database
 	if err := config.DB.Save(&user).Error; err != nil {

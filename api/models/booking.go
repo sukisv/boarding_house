@@ -40,11 +40,12 @@ func (b *Booking) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 // BookingRequest represents the request payload for creating or updating a Booking
+// Pastikan StartDate dan EndDate bertipe string agar bisa di-parse dari JSON
+// Contoh: "start_date": "2024-07-01", "end_date": "2024-07-31"
 type BookingRequest struct {
-	UserID          string    `json:"user_id" binding:"required,uuid"`
-	BoardingHouseID string    `json:"boarding_house_id" binding:"required,uuid"`
-	StartDate       time.Time `json:"start_date" binding:"required"`
-	EndDate         time.Time `json:"end_date" binding:"required,gtfield=StartDate"`
+	BoardingHouseID string `json:"boarding_house_id" binding:"required"`
+	StartDate       string `json:"start_date" binding:"required"`
+	EndDate         string `json:"end_date" binding:"required"`
 }
 
 // BookingResponse represents the response payload for a Booking

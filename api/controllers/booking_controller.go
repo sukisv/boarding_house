@@ -40,20 +40,20 @@ func CreateBooking(c echo.Context) error {
 		})
 	}
 
-	// Validate and parse dates
-	start, err := time.Parse("2006-01-02", payload.StartDate.Format("2006-01-02"))
+	// Parse dates from string input
+	start, err := time.Parse("2006-01-02", payload.StartDate)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "Invalid start_date format",
+			"message": "Invalid start_date format, use YYYY-MM-DD",
 			"status":  "error",
 			"success": false,
 			"data":    err.Error(),
 		})
 	}
-	end, err := time.Parse("2006-01-02", payload.EndDate.Format("2006-01-02"))
+	end, err := time.Parse("2006-01-02", payload.EndDate)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "Invalid end_date format",
+			"message": "Invalid end_date format, use YYYY-MM-DD",
 			"status":  "error",
 			"success": false,
 			"data":    err.Error(),
@@ -227,6 +227,7 @@ func GetBookingByID(c echo.Context) error {
 			"message": "Failed to process response data",
 			"status":  "error",
 			"success": false,
+			"data":    err.Error(),
 		})
 	}
 
@@ -268,13 +269,14 @@ func UpdateBooking(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"message": "Invalid request body", "status": "error", "data": err.Error()})
 	}
 
-	if !payload.StartDate.IsZero() {
-		if t, err := time.Parse("2006-01-02", payload.StartDate.Format("2006-01-02")); err == nil {
+	// Parse string date input
+	if payload.StartDate != "" {
+		if t, err := time.Parse("2006-01-02", payload.StartDate); err == nil {
 			booking.StartDate = t
 		}
 	}
-	if !payload.EndDate.IsZero() {
-		if t, err := time.Parse("2006-01-02", payload.EndDate.Format("2006-01-02")); err == nil {
+	if payload.EndDate != "" {
+		if t, err := time.Parse("2006-01-02", payload.EndDate); err == nil {
 			booking.EndDate = t
 		}
 	}

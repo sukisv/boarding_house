@@ -41,15 +41,21 @@ class SearchViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> applySearch(String search, String gender) async {
+  Future<void> applySearch(String search, String gender, [String? city]) async {
     isLoading = true;
     notifyListeners();
     currentPage = 1;
     lastKeyword = search;
     lastGender = gender;
     try {
-      final url =
-          '/api/boarding-houses?page=$currentPage&limit=$limit&search=$search&gender_allowed=$gender';
+      String url;
+      if (city != null && city.isNotEmpty) {
+        url =
+            '/api/boarding-houses?page=$currentPage&limit=$limit&city=$city&gender_allowed=$gender';
+      } else {
+        url =
+            '/api/boarding-houses?page=$currentPage&limit=$limit&search=$search&gender_allowed=$gender';
+      }
       final response = await _apiService.get(url);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

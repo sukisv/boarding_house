@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobile_application/viewmodels/owner/boarding_house_update_image/index.dart';
 import 'package:mobile_application/models/boarding_house.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_application/components/custom_button.dart';
 
 class BoardingHouseUpdateImageView extends StatefulWidget {
   final String boardingHouseId;
@@ -61,7 +62,7 @@ class _BoardingHouseUpdateImageViewState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ElevatedButton(
+            CustomButton(
               onPressed: () async {
                 final picked = await _picker.pickMultiImage();
                 if (picked.isNotEmpty) {
@@ -70,11 +71,13 @@ class _BoardingHouseUpdateImageViewState
                   });
                 }
               },
-              child: Text('Pilih Gambar'),
+              label: 'Pilih Gambar',
             ),
+            if (_selectedImages.isNotEmpty) SizedBox(height: 12),
             if (_selectedImages.isNotEmpty)
               Wrap(
                 spacing: 10,
+                runSpacing: 10,
                 children:
                     _selectedImages
                         .map(
@@ -90,8 +93,9 @@ class _BoardingHouseUpdateImageViewState
                         )
                         .toList(),
               ),
+            if (_selectedImages.isNotEmpty) SizedBox(height: 12),
             if (_selectedImages.isNotEmpty)
-              ElevatedButton(
+              CustomButton(
                 onPressed: () async {
                   setState(() => _isLoading = true);
                   await viewModel.uploadImages(
@@ -103,7 +107,7 @@ class _BoardingHouseUpdateImageViewState
                   });
                   await _loadImages();
                 },
-                child: Text('Upload'),
+                label: 'Upload',
               ),
             const SizedBox(height: 16),
             Text(
@@ -117,41 +121,45 @@ class _BoardingHouseUpdateImageViewState
                       ? Center(child: CircularProgressIndicator())
                       : _currentImages.isEmpty
                       ? Center(child: Text('Belum ada gambar'))
-                      : ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _currentImages.length,
-                        separatorBuilder: (_, __) => SizedBox(width: 10),
-                        itemBuilder: (context, index) {
-                          final img = _currentImages[index];
-                          return Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: Image.network(
-                                  viewModel.getFullImageUrl(img.imageUrl),
-                                  width: 120,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Positioned(
-                                top: 0,
-                                right: 0,
-                                child: IconButton(
-                                  icon: Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () async {
-                                    setState(() => _isLoading = true);
-                                    await viewModel.deleteImage(
-                                      widget.boardingHouseId,
-                                      img.id,
-                                    );
-                                    await _loadImages();
-                                  },
-                                ),
-                              ),
-                            ],
-                          );
-                        },
+                      : SingleChildScrollView(
+                        child: Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children:
+                              _currentImages.map((img) {
+                                return Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: Image.network(
+                                        viewModel.getFullImageUrl(img.imageUrl),
+                                        width: 120,
+                                        height: 120,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: IconButton(
+                                        icon: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () async {
+                                          setState(() => _isLoading = true);
+                                          await viewModel.deleteImage(
+                                            widget.boardingHouseId,
+                                            img.id,
+                                          );
+                                          await _loadImages();
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
+                        ),
                       ),
             ),
           ],

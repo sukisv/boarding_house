@@ -14,7 +14,7 @@ import (
 
 func Login(c echo.Context) error {
 	// Bind request payload
-	var loginRequest models.UserRequest
+	var loginRequest models.LoginRequest
 	if err := c.Bind(&loginRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "Invalid request payload",
@@ -64,21 +64,23 @@ func Login(c echo.Context) error {
 
 	token := base64.StdEncoding.EncodeToString(userInfoJSON)
 
+	loginResponse := models.LoginResponse{
+		Token: token,
+		User:  userInfo,
+	}
+
 	// Return response with token
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Login successful",
 		"status":  "success",
 		"success": true,
-		"data": echo.Map{
-			"user":  userInfo,
-			"token": token,
-		},
+		"data":    loginResponse,
 	})
 }
 
 func Register(c echo.Context) error {
 	// Bind request payload
-	var registerRequest models.UserRequest
+	var registerRequest models.RegisterRequest
 	if err := c.Bind(&registerRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "Invalid request body",
@@ -118,7 +120,7 @@ func Register(c echo.Context) error {
 	}
 
 	// Copy user data to response struct
-	registerResponse := models.UserResponse{}
+	registerResponse := models.RegisterResponse{}
 	if err := copier.Copy(&registerResponse, &user); err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Failed to process response data",

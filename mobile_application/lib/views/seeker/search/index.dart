@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../components/search_form.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,7 @@ class SearchView extends StatefulWidget {
 
 class _SearchViewState extends State<SearchView> {
   final TextEditingController searchController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
   String selectedGender = 'mixed';
   final Map<String, String> genderOptions = {
     'male': 'Pria',
@@ -36,19 +38,22 @@ class _SearchViewState extends State<SearchView> {
           permission == LocationPermission.denied) {
         setState(() => _loadingLocation = false);
         ScaffoldMessenger.of(
+          // ignore: use_build_context_synchronously
           context,
         ).showSnackBar(SnackBar(content: Text('Izin lokasi ditolak')));
         return;
       }
       final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
       );
+
       final url =
           'https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.latitude}&lon=${pos.longitude}&zoom=10&addressdetails=1';
       final response = await http.get(
         Uri.parse(url),
         headers: {'User-Agent': 'anak-kos-app'},
       );
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final city =
@@ -76,6 +81,9 @@ class _SearchViewState extends State<SearchView> {
         ).showSnackBar(SnackBar(content: Text('Gagal mendapatkan lokasi')));
       }
     } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
       setState(() => _loadingLocation = false);
       ScaffoldMessenger.of(
         context,
@@ -92,8 +100,11 @@ class _SearchViewState extends State<SearchView> {
       ),
       builder: (context) {
         String tempGender = selectedGender;
-        TextEditingController tempController = TextEditingController(
+        TextEditingController tempSearchController = TextEditingController(
           text: searchController.text,
+        );
+        TextEditingController tempCityController = TextEditingController(
+          text: cityController.text,
         );
         return Padding(
           padding: EdgeInsets.only(
@@ -106,7 +117,7 @@ class _SearchViewState extends State<SearchView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SearchForm(
-                searchController: tempController,
+                searchController: tempSearchController,
                 selectedGender: tempGender,
                 genderOptions: genderOptions,
                 onGenderChanged: (value) {
@@ -118,10 +129,15 @@ class _SearchViewState extends State<SearchView> {
                 },
                 onApply: () {
                   setState(() {
-                    searchController.text = tempController.text;
+                    searchController.text = tempSearchController.text;
+                    cityController.text = tempCityController.text;
                     selectedGender = tempGender;
                   });
-                  viewModel.applySearch(searchController.text, selectedGender);
+                  viewModel.applySearch(
+                    tempSearchController.text, // search
+                    tempGender, // gender
+                    tempCityController.text, // city
+                  );
                   Navigator.pop(context);
                 },
               ),

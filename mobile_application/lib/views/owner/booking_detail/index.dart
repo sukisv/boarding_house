@@ -41,11 +41,11 @@ class BookingDetailView extends StatelessWidget {
                       Text('Status: ${booking.status}'),
                       const SizedBox(height: 8),
                       Text(
-                        'Tanggal Mulai: ${booking.startDate.isNotEmpty ? booking.startDate : '-'}',
+                        'Tanggal Mulai: ${booking.startDate.isNotEmpty ? booking.startDate.substring(0, 10) : '-'}',
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Tanggal Selesai: ${booking.endDate.isNotEmpty ? booking.endDate : '-'}',
+                        'Tanggal Selesai: ${booking.endDate.isNotEmpty ? booking.endDate.substring(0, 10) : '-'}',
                       ),
                       const SizedBox(height: 16),
                       if (booking.status == 'pending')

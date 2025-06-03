@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../constants/api_constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:io';
 
 class ApiService {
   final String baseUrl = apiBaseUrl;
@@ -139,5 +140,36 @@ class ApiService {
     } else {
       throw Exception('Failed to load image');
     }
+  }
+
+  Future<http.Response> uploadBoardingHouseImages(
+    String endpoint,
+    String boardingHouseId,
+    List<String> imagePaths,
+  ) async {
+    await _ensureAuthToken();
+    final url = Uri.parse('$baseUrl$endpoint');
+    final request = http.MultipartRequest('POST', url);
+    if (_useAuth && _authToken != null) {
+      request.headers['Authorization'] = 'Bearer $_authToken';
+    }
+    request.fields['boarding_house_id'] = boardingHouseId;
+    for (var path in imagePaths) {
+      request.files.add(await http.MultipartFile.fromPath('images', path));
+    }
+    if (kDebugMode) {
+      print('UPLOAD Request: $url');
+      print('Headers: ${request.headers}');
+      print('Fields: ${request.fields}');
+      print(
+        'Files: ${imagePaths.map((e) => e.split(Platform.pathSeparator).last).toList()}',
+      );
+    }
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+    if (kDebugMode) {
+      print('Response: ${response.statusCode} ${response.body}');
+    }
+    return response;
   }
 }
