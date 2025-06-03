@@ -18,7 +18,12 @@ class CustomCheckbox extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Checkbox(value: value, onChanged: onChanged),
-        Text(label, style: const TextStyle(fontSize: 12)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
     );
   }

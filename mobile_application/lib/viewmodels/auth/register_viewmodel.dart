@@ -4,23 +4,34 @@ import '../../services/api_service.dart';
 class RegisterViewModel extends ChangeNotifier {
   final ApiService _apiService = ApiService();
 
-  void register({
+  Future<bool> register({
+    required String name,
     required String email,
-    required String phone,
     required String password,
+    required String role,
+    required String phone,
   }) async {
     try {
       final response = await _apiService.post(
         '/auth/register',
-        body: {'email': email, 'phone': phone, 'password': password},
+        body: {
+          'name': name,
+          'email': email,
+          'password': password,
+          'role': role,
+          'phone_number': phone,
+        },
       );
       if (response.statusCode == 200) {
         // Handle successful registration
+        return true;
       } else {
         // Handle registration error
+        return false;
       }
     } catch (e) {
       // Handle exception
+      return false;
     }
   }
 }

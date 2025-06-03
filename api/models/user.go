@@ -57,6 +57,8 @@ func (item *User) BeforeUpdate(tx *gorm.DB) (err error) {
 }
 
 // UserRequest represents the request payload for creating or updating a User
+// Penting: Jangan tambahkan field Password di sini agar password tidak bisa diubah lewat update user
+// Jika ingin update password, buat endpoint khusus
 type UserRequest struct {
 	Name        string `json:"name" binding:"required"`
 	PhoneNumber string `json:"phone_number" binding:"omitempty"`

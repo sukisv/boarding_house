@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/components/half_modal.dart';
 import 'package:mobile_application/models/boarding_house.dart';
 import 'package:mobile_application/viewmodels/owner/manage_property/index.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +13,14 @@ class ManagePropertiesView extends StatefulWidget {
 }
 
 class _ManagePropertiesViewState extends State<ManagePropertiesView> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController priceController = TextEditingController();
+  final TextEditingController roomsController = TextEditingController();
+  String? genderAllowed;
+
   @override
   void initState() {
     super.initState();
@@ -126,29 +133,32 @@ class _ManagePropertiesViewState extends State<ManagePropertiesView> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: true,
       builder: (context) {
-        final height = MediaQuery.of(context).size.height * 0.8;
-        return HalfModal(
-          title: 'Tambah Kos',
-          child: SingleChildScrollView(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: height),
-              child: FormBoardingHouseModal(
-                nameController: TextEditingController(),
-                descriptionController: TextEditingController(),
-                addressController: TextEditingController(),
-                cityController: TextEditingController(),
-                priceController: TextEditingController(),
-                roomsController: TextEditingController(),
-                genderAllowed: null,
-                onSubmit: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ),
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: constraints.maxHeight),
+                  child: FormBoardingHouseModal(
+                    nameController: nameController,
+                    descriptionController: descriptionController,
+                    addressController: addressController,
+                    cityController: cityController,
+                    priceController: priceController,
+                    roomsController: roomsController,
+                    genderAllowed: genderAllowed,
+                    onSubmit: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              );
+            },
           ),
         );
       },

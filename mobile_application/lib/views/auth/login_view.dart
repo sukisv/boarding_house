@@ -15,6 +15,12 @@ class LoginView extends StatelessWidget {
     final passwordController = TextEditingController();
     final loginViewModel = Provider.of<LoginViewModel>(context, listen: false);
 
+    // Ambil argument email dari register jika ada
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args != null && args is String) {
+      emailOrPhoneController.text = args;
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text('Masuk')),
       body: Padding(
@@ -46,6 +52,13 @@ class LoginView extends StatelessWidget {
                     SnackBar(content: Text('Gagal masuk. Silakan coba lagi.')),
                   );
                 }
+              },
+            ),
+            SizedBox(height: 12),
+            CustomButton(
+              label: 'Daftar',
+              onPressed: () {
+                Navigator.pushNamed(context, Routes.register);
               },
             ),
           ],
