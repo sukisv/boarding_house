@@ -5,6 +5,7 @@ import (
 	"anak_kos/models"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/jinzhu/copier"
@@ -52,6 +53,8 @@ func Login(c echo.Context) error {
 			"success": false,
 		})
 	}
+
+	fmt.Println("User Info:", userInfo)
 
 	userInfoJSON, err := json.Marshal(userInfo)
 	if err != nil {

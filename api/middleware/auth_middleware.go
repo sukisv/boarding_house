@@ -4,6 +4,7 @@ import (
 	"anak_kos/context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -24,6 +25,7 @@ func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		var user context.AuthenticatedUser
+		fmt.Println("Decoded User Info:", string(decodedUserInfo))
 		if err := json.Unmarshal(decodedUserInfo, &user); err != nil {
 			return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Failed to parse token"})
 		}

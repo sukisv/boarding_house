@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -17,6 +18,7 @@ import (
 func CreateBooking(c echo.Context) error {
 	// Get authenticated user
 	user := c.Get("user").(context.AuthenticatedUser)
+	fmt.Println("Authenticated User:", user)
 	userID := user.ID.String()
 	userRole := string(user.Role)
 

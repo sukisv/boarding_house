@@ -33,6 +33,7 @@ class LoginViewModel extends ChangeNotifier {
         final token = responseData['data']['token'];
         final user = User.fromJson(responseData['data']['user']);
 
+        await _storage.delete(key: 'auth_token');
         await _storage.write(key: 'auth_token', value: token);
         userProvider.setUser(user);
         return true;
